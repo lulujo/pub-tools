@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Environment and credentials
+.env
+.env.local
+.env.*.local
+credentials.json
+*.credentials
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Claude Code local config (credentials stored here, not in repo)
+# Credentials are configured per-user via: claude mcp add
