@@ -52,6 +52,15 @@ Examine the file list and mark ALL categories that apply:
 - Verify instructions are accurate and complete
 - Check that referenced files/paths actually exist
 
+### Content-specific checks (always run when output includes WordPress content):
+- **Curly quotes:** Verify "curly quotes" not "straight quotes" in all content — titles, dialogue, emphasis, everything
+- **Em dashes:** No spaces around em dashes mid-sentence (grief—and loss, not grief — and loss)
+- **WordPress taxonomy:** Categories and tags match what's defined in `integrations/wordpress/CONTENT_PLAN.md`
+- **SEO fields:** When Rank Math integration is active, verify meta title, description, and focus keyword are set and sensible
+- **Featured image:** Verify image is attached and assigned to the correct WP Media folder
+- **CTA reminder:** Every post must end with `[ADD CTA PATTERN]`
+- **Author voice:** Content from author responses must be preserved exactly — no edits to word choices, Canadian spellings, etc.
+
 ## Step 4: Manual Review of Changed Files
 
 Read through the changed files and check for:
@@ -105,7 +114,10 @@ Use this exact format:
 | Hardcoded credentials | PASS/FAIL |
 | Error handling | PASS/FAIL |
 | Documentation accuracy | PASS/FAIL |
-| Formatting consistency | PASS/FAIL |
+| Formatting (quotes, em dashes) | PASS/FAIL |
+| WordPress taxonomy | PASS/FAIL/N/A |
+| SEO fields (Rank Math) | PASS/FAIL/N/A |
+| Content voice preserved | PASS/FAIL/N/A |
 
 ### Manual Review
 - [Findings, or "No issues found"]
@@ -134,7 +146,10 @@ Use this exact format:
 - No hardcoded credentials or secrets
 - Error handling present on external API calls
 - Documentation is accurate
-- Formatting is consistent
+- Formatting is consistent (curly quotes, em dashes)
+- WordPress taxonomy matches CONTENT_PLAN.md (when applicable)
+- SEO fields are set and sensible (when Rank Math integration is active)
+- Author voice preserved in interview/response content
 - **You can honestly say "Yes, I'm happy with this"**
 
 **NOT READY** if ANY of:
@@ -142,8 +157,12 @@ Use this exact format:
 - Missing error handling on API calls → **BLOCKER**
 - TODO/FIXME indicating unfinished work → **BLOCKER**
 - Self-reflection reveals unaddressed concerns → **BLOCKER**
+- Straight quotes in published content → **BLOCKER**
+- Author voice edited (word choices changed, spellings "corrected") → **BLOCKER**
+- Missing CTA reminder on post → **BLOCKER**
 - Inaccurate documentation → **WARNING**
-- Formatting inconsistencies → **WARNING**
+- Missing SEO fields → **WARNING**
+- Taxonomy mismatch → **WARNING**
 
 ## Guidelines
 

@@ -80,7 +80,7 @@ Every finding gets ONE of these classifications:
 | Classification | Meaning | What happens |
 |----------------|---------|--------------|
 | **BLOCKER** | Must be fixed before this work ships | Fix before merge |
-| **ISSUE** | Real problem, but can be tracked separately | Create a GitHub issue |
+| **ISSUE** | Real problem, but can be tracked separately | Creates a Linear issue |
 | **QUESTION** | You're not sure — need clarification | Jamie decides |
 
 **There is no "suggestion" or "nice-to-have" classification.** If it matters, it's one of the three above. If it doesn't matter, don't include it.
@@ -153,6 +153,19 @@ But keep it honest. Don't pad this section to soften the findings.]
 
 **NEEDS DISCUSSION** — Fundamental approach questions that Jamie should weigh in on before proceeding.
 ```
+
+## Step 6: Track Findings
+
+**After Jamie reviews your report**, create Linear issues for every ISSUE-classified finding that Jamie doesn't explicitly dismiss.
+
+Use the Linear CLI:
+```bash
+LINEAR_TEAM_KEY=PUB npx tsx ~/Dropbox/dev/inkwren/inkwren-develop/scripts/linear-cli.ts create --title "Brief description" --description "From review of PUB-XXX: [finding details]"
+```
+
+**Do not skip this step.** An ISSUE finding without a Linear issue is the same as not finding it — no one will remember to come back.
+
+If Jamie dismisses a finding, that's fine — the point is that every ISSUE gets an explicit disposition (tracked or dismissed), not silence.
 
 ## Guidelines
 
