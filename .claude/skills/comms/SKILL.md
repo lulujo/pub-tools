@@ -21,10 +21,12 @@ Search these paths in order:
 2. `docs/session-comms/<filename>` (if extension was included)
 3. `~/Dropbox/dev/inkwren/inkwren-develop/internal-docs/session-comms/<filename>.md` (Inkwren — for cross-team discussions)
 4. `~/Dropbox/dev/inkwren/inkwren-develop/internal-docs/session-comms/<filename>` (if extension was included)
+5. `~/Dropbox/dev/calliopelabs/rookery/docs/session-comms/<filename>.md` (Rookery — for cross-team discussions)
+6. `~/Dropbox/dev/calliopelabs/rookery/docs/session-comms/<filename>` (if extension was included)
 
-When you find the file, say where: "Found in pub-tools session-comms" or "Found in Inkwren session-comms (cross-team)".
+When you find the file, say where: "Found in pub-tools session-comms", "Found in Inkwren session-comms (cross-team)", or "Found in Rookery session-comms (cross-team)".
 
-If not found in any location, tell Jamie: "File `<filename>` not found in pub-tools or Inkwren session-comms."
+If not found in any location, tell Jamie: "File `<filename>` not found in pub-tools, Inkwren, or Rookery session-comms."
 
 If the file doesn't exist and Jamie's intent seems to be creating a new thread, create it in `docs/session-comms/` with this template:
 

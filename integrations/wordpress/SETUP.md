@@ -60,8 +60,10 @@ All approaches support:
 
 ## Chosen Approach
 
-**Primary:** WordPress MCP Adapter (Option 2) — official, AI-optimized, auto-discovers tools
-**Fallback:** Direct REST API calls for anything MCP doesn't cover (WP Media folder taxonomy, Rank Math meta)
+**Primary:** InstaWP/mcp-wp (Option 3) — runs locally via `npx`, ~35 tools, no WP plugin needed, connects via REST API with Application Passwords
+**Fallback:** Direct REST API calls for anything mcp-wp doesn't cover (WP Media folder taxonomy, Rank Math meta)
+
+**Why not WordPress/mcp-adapter?** It's a Composer package, not a traditional WP plugin. Installing on WPEngine managed hosting requires SSH/Composer access or manual dependency bundling — too much friction. InstaWP/mcp-wp gives the same MCP benefits with zero server-side changes.
 
 See `IMPLEMENTATION_PLAN.md` for the phased rollout.
 
