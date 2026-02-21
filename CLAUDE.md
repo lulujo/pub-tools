@@ -31,19 +31,23 @@ This repo contains **integration code and tooling only**. Content lives in the p
 
 ## Current Status
 
-- **WordPress integration:** Planning complete, ready for Phase 1 (connect to Blackbird)
+- **WordPress integration:** Phases 1-3 complete. MCP + REST API working. Draft posts, featured images, and CTA patterns all confirmed.
 - **Buffer integration:** Identified as next target, not yet started
+- **Next up:** PUB-5 (scheduled posts), PUB-6 (Rank Math SEO), PUB-7 (production workflow)
 - See `integrations/wordpress/IMPLEMENTATION_PLAN.md` for the phased rollout
+- See `integrations/wordpress/SITE_INVENTORY.md` for categories, tags, tools, and confirmed patterns
 
 ## MCP Tool Naming Conventions
 
-When Jamie's Claude sessions have multiple MCP servers connected, tools must be namespaced to avoid collisions:
+The WordPress MCP server is registered as `blackbird-wp`. Tools are invoked as `mcp__blackbird-wp__<tool>` (e.g., `mcp__blackbird-wp__create_post`). No `wp_` prefix wrapper is needed — the server name provides disambiguation.
 
-| Server | Prefix | Examples |
+When multiple MCP servers are connected:
+
+| Server | Namespace | Examples |
 |---|---|---|
-| pub-tools (WordPress) | `wp_` | `wp_create_post`, `wp_upload_media`, `wp_list_posts` |
-| pub-tools (Buffer) | `buffer_` | `buffer_schedule_post`, `buffer_list_channels` |
-| Inkwren | `inkwren_` | `inkwren_search_publications`, `inkwren_get_catalog_summary` |
+| WordPress (Blackbird) | `mcp__blackbird-wp__` | `mcp__blackbird-wp__create_post` |
+| Inkwren | `inkwren_` | `inkwren_search_publications` |
+| Buffer (future) | `buffer_` | `buffer_schedule_post` |
 
 "Publication" means different things in each context:
 - **Inkwren:** A book or anthology in Jamie's catalog (project management data)
@@ -61,11 +65,42 @@ When using Inkwren MCP data to drive WordPress actions, use the correct workspac
 
 ## WordPress Integration
 
-- **Approach:** Official WordPress MCP Adapter (primary), direct REST API (fallback)
+- **MCP server:** `blackbird-wp` (InstaWP/mcp-wp via npx)
+- **REST API fallback:** For local file uploads, pattern creation, and tag management
 - **Target site:** Blackbird Publishing (blackbirdpublishing.com) on WPEngine
 - **Content types:** Story spotlights, interviews, launch posts, landing pages
 - **Blog post formats:** See `~/Dropbox/dev/publishing/protocols/BLOG_POST_FORMATS.md`
 - **Plugins on Blackbird:** Rank Math SEO, WP Media folder, Enable Media Replace, Media File Renamer, Envira Gallery, CMS Tree Page View, Yoast Duplicate Post
+
+### WordPress Content Rules
+
+**Special characters — always use HTML entities, not Unicode:**
+
+| Character | Entity |
+|-----------|--------|
+| " " (curly double quotes) | `&ldquo;` `&rdquo;` |
+| ' ' (curly single/apostrophe) | `&lsquo;` `&rsquo;` |
+| — (em dash) | `&mdash;` |
+| – (en dash) | `&ndash;` |
+| … (ellipsis) | `&hellip;` |
+
+Unicode curly quotes get flattened to straight quotes by the MCP/REST pipeline. HTML entities are preserved in both the editor and rendered output.
+
+**Content format:** Gutenberg blocks (not Classic blocks). Match the existing Blackbird post structure.
+
+**CTA patterns:** Insert by reference, not inline. Haunted Waters: `<!-- wp:block {"ref":5400} /-->`, Haunted Places: `<!-- wp:block {"ref":5146} /-->`
+
+**Featured image upload:** MCP `create_media` only accepts URLs. For local files, use direct REST API: `POST /wp-json/wp/v2/media` with binary data and `CLAUDE_BLACKBIRD_WP_PASSWORD` from `.env`. Then attach via MCP `update_post` with `featured_media`.
+
+**Media folders:** `wpmf-category` taxonomy is not API-accessible (403). Jamie assigns folders manually after upload.
+
+### Linear Project Tracking
+
+Tickets are in the PUB project on Linear. To use the CLI:
+```
+export $(grep LINEAR_API_KEY .env) && LINEAR_TEAM_KEY=PUB npx tsx ~/Dropbox/dev/inkwren/inkwren-develop/scripts/linear-cli.ts <command>
+```
+Commands: `list`, `state PUB-X "Done"`, `state PUB-X "In Progress"`
 
 ## Inkwren MCP Integration (Future)
 

@@ -126,6 +126,61 @@ Kadence theme fields (`_kad_post_*`) are exposed. Jetpack social/newsletter fiel
 
 ---
 
+## Content Conversion (Phase 2 — confirmed 2026-02-20)
+
+**Approach:** Gutenberg blocks (matching existing Blackbird posts), NOT Classic blocks.
+
+### Special character handling
+
+Unicode curly quotes get flattened to straight quotes by the MCP adapter/REST pipeline. **Fix:** send all special characters as HTML entities.
+
+| Character | Entity | Example |
+|-----------|--------|---------|
+| Left double quote " | `&ldquo;` | `&ldquo;Like this,&rdquo;` |
+| Right double quote " | `&rdquo;` | |
+| Left single quote ' | `&lsquo;` | `&lsquo;Quoted&rsquo;` |
+| Right single quote / apostrophe ' | `&rsquo;` | `it&rsquo;s`, `can&rsquo;t` |
+| Em dash — | `&mdash;` | `grief&mdash;and loss` |
+| En dash – | `&ndash;` | `pages 12&ndash;15` |
+| Ellipsis … | `&hellip;` | `waited&hellip;` |
+
+This preserves curly quotes in both the stored content (editor view) and rendered output (reader view).
+
+### Saved patterns (CTA blocks)
+
+Saved Kadence patterns are stored as `wp_block` post type and accessible via REST API at `/wp-json/wp/v2/blocks`.
+
+| Pattern | ID | Usage |
+|---------|-----|-------|
+| Haunted Waters buy the book | 5400 | All Haunted Waters spotlight and interview posts |
+| Haunted Places buy the book | 5146 | All Haunted Places posts |
+
+**Insert via reference:** `<!-- wp:block {"ref":5400} /-->` — keeps pattern synced across posts.
+
+**Permissions:** The `claude` Editor user can read patterns and insert references, but cannot create or edit patterns (403). Jamie creates patterns in WP Admin; Claude provides the block markup.
+
+### Post structure (spotlights)
+
+Posts use Gutenberg blocks: `wp:paragraph`, `wp:heading`, `wp:quote`, `wp:list`, `wp:image`, `wp:block` (pattern ref). See `BLOG_POST_FORMATS.md` for section order.
+
+---
+
+## Featured Images (Phase 3 — confirmed 2026-02-20)
+
+**Upload method:** Direct REST API (`POST /wp-json/wp/v2/media`) with binary file data. The MCP `create_media` tool only accepts URLs, not local files.
+
+**Attach to post:** Use MCP `update_post` with `featured_media` set to the media ID.
+
+**Image specs:** 1200x628px JPG for spotlight/interview featured images.
+
+**Media File Renamer:** Did NOT rename the uploaded file. Filename stayed as provided. No issues observed.
+
+**WP Media folders:** Cannot assign via API (403 on `wpmf-category` taxonomy). Jamie assigns media to folders manually after upload.
+
+**Naming convention:** `Haunted-Waters-Spotlight-Author-Name.jpg` (hyphens, no spaces).
+
+---
+
 ## Issues to Address
 
 1. **WP Media folder (wpmf-category)** — not REST-accessible for editors. Need to check plugin settings or accept that media folder assignment is manual for now.
