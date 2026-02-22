@@ -51,15 +51,7 @@ Convert the extracted data to Gutenberg blocks with HTML entities.
 <!-- /wp:paragraph -->
 ```
 
-**Special characters — always use HTML entities:**
-
-| Character | Entity |
-|-----------|--------|
-| " " (curly double quotes) | `&ldquo;` `&rdquo;` |
-| ' ' (curly single/apostrophe) | `&lsquo;` `&rsquo;` |
-| — (em dash) | `&mdash;` |
-| – (en dash) | `&ndash;` |
-| … (ellipsis) | `&hellip;` |
+Use HTML entities for all special characters (see CLAUDE.md table).
 
 ### Social Links
 

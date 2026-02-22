@@ -5,6 +5,8 @@ description: Create an interview draft on Blackbird Publishing. Use when Jamie s
 
 # Post Interview
 
+**This is a format conversion task, not a creative writing task.** Do not analyze, interpret, or engage with the story content beyond what's needed for mechanical conversion. The content is already written and approved. Convert format, apply HTML entities, pull bio, check comps against blocklist, create draft. Move quickly.
+
 Create a WordPress draft interview post on blackbirdpublishing.com from a markdown source file.
 
 ## Usage
@@ -34,15 +36,7 @@ mcp__blackbird-wp__list_posts search="<story title>" status="publish"
 
 ### Special Characters (CRITICAL)
 
-**Always use HTML entities, never Unicode characters:**
-
-| Character | Entity |
-|-----------|--------|
-| " " (curly double quotes) | `&ldquo;` `&rdquo;` |
-| ' ' (curly single/apostrophe) | `&lsquo;` `&rsquo;` |
-| — (em dash) | `&mdash;` |
-| – (en dash) | `&ndash;` |
-| … (ellipsis) | `&hellip;` |
+Use HTML entities for all special characters (see CLAUDE.md table). Unicode curly quotes get flattened to straight quotes by the pipeline.
 
 ### Block Structure
 
@@ -51,7 +45,7 @@ mcp__blackbird-wp__list_posts search="<story title>" status="publish"
 3. **Q&A pairs** — Questions as `<!-- wp:paragraph -->` with `<strong>` wrapper, answers as `<!-- wp:paragraph -->` blocks
 4. **About the Author** — `<!-- wp:heading -->` + bio paragraphs + website link. **Use `/author-info <author name>` to extract the bio from Vellum** instead of leaving a placeholder. If the interview markdown already has a bio, prefer the Vellum version (canonical source) but flag any differences to Jamie.
 5. **Read the Story** — `<!-- wp:heading -->` + paragraph with anthology name only (no buy link — the CTA pattern provides that)
-6. **CTA Pattern** — `<!-- wp:block {"ref":PATTERN_ID} /-->` (Haunted Waters: 5400, Haunted Places: 5146). The pattern renders a buy link and cover image — do NOT add a separate "Buy the book" paragraph.
+6. **CTA Pattern** — Look up the pattern ID in `integrations/wordpress/BUY_LINKS.md` and insert by reference (e.g., `<!-- wp:block {"ref":5400} /-->`). The pattern renders a buy link and cover image — do NOT add a separate "Buy the book" paragraph.
 
 ### Author Voice Rules
 

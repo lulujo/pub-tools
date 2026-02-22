@@ -5,6 +5,8 @@ description: Create a story spotlight draft on Blackbird Publishing. Use when Ja
 
 # Post Spotlight
 
+**This is a format conversion task, not a creative writing task.** Do not analyze, interpret, or engage with the story content beyond what's needed for mechanical conversion. The content is already written and approved. Convert format, apply HTML entities, pull bio, check comps against blocklist, create draft. Move quickly.
+
 Create a WordPress draft spotlight post on blackbirdpublishing.com from a markdown source file.
 
 ## Usage
@@ -42,17 +44,7 @@ Convert the markdown to Gutenberg block markup following these rules:
 
 ### Special Characters (CRITICAL)
 
-**Always use HTML entities, never Unicode characters:**
-
-| Character | Entity |
-|-----------|--------|
-| " " (curly double quotes) | `&ldquo;` `&rdquo;` |
-| ' ' (curly single/apostrophe) | `&lsquo;` `&rsquo;` |
-| — (em dash) | `&mdash;` |
-| – (en dash) | `&ndash;` |
-| … (ellipsis) | `&hellip;` |
-
-Unicode curly quotes get flattened to straight quotes by the pipeline. HTML entities survive in both the editor and rendered output.
+Use HTML entities for all special characters (see CLAUDE.md table). Unicode curly quotes get flattened to straight quotes by the pipeline.
 
 ### Block Structure
 
@@ -68,18 +60,9 @@ Map the markdown sections to Gutenberg blocks in this order:
 8. **If you liked...** — `<!-- wp:heading -->` + `<!-- wp:list -->` block
 9. **Closing paragraph** — `<!-- wp:paragraph -->` connecting the recommendations back to the story
 
-### CTA Pattern IDs
+### CTA Patterns & Buy Links
 
-| Anthology | Pattern ID | Reference |
-|-----------|-----------|-----------|
-| Haunted Waters | 5400 | `<!-- wp:block {"ref":5400} /-->` |
-| Haunted Places | 5146 | `<!-- wp:block {"ref":5146} /-->` |
-
-### Buy Links
-
-| Anthology | URL |
-|-----------|-----|
-| Haunted Waters | `https://books2read.com/h3-haunted-waters` |
+See `integrations/wordpress/BUY_LINKS.md` for the current anthology CTA pattern IDs and buy links. Insert the CTA pattern by reference (e.g., `<!-- wp:block {"ref":5400} /-->`).
 
 ## Step 4: Set Taxonomy
 
@@ -105,7 +88,7 @@ Use `mcp__blackbird-wp__create_post` with:
 - `title`: `Story Spotlight: &ldquo;Story Title&rdquo; by Author Name`
 - `content`: Gutenberg block markup from Step 3
 - `status`: `draft` (NEVER publish without Jamie's approval)
-- `slug`: `story-spotlight-story-title-by-author-name` (lowercase, hyphens)
+- `slug`: `spotlight-story-title-by-author-name` (lowercase, hyphens)
 - `categories`: `[14]` for spotlights
 - `tags`: `[378]` for Haunted Waters (add author tag ID if it exists)
 
