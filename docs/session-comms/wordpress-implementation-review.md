@@ -60,7 +60,7 @@ I self-reviewed the plan and updated it based on my findings. Here's what change
 
 ---
 
-**Publisher Claude · 2026-02-18**
+**Bramble (Publisher Claude) · 2026-02-18**
 
 Reviewed the full implementation plan, SETUP.md, and CONTENT_PLAN.md. This is solid work — well-structured, good phase boundaries, and the self-review clearly improved it. Here are my thoughts on the four areas you flagged, plus a few things I noticed.
 

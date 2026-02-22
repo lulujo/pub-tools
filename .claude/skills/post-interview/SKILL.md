@@ -49,9 +49,9 @@ mcp__blackbird-wp__list_posts search="<story title>" status="publish"
 1. **Opening Description** — `<!-- wp:paragraph -->` (narrative hook, not a summary)
 2. **Interview Questions heading** — `<!-- wp:heading -->`
 3. **Q&A pairs** — Questions as `<!-- wp:paragraph -->` with `<strong>` wrapper, answers as `<!-- wp:paragraph -->` blocks
-4. **About the Author** — `<!-- wp:heading -->` + bio paragraphs + website link
-5. **Read the Story** — `<!-- wp:heading -->` + paragraph with anthology name
-6. **CTA Pattern** — `<!-- wp:block {"ref":PATTERN_ID} /-->` (Haunted Waters: 5400, Haunted Places: 5146)
+4. **About the Author** — `<!-- wp:heading -->` + bio paragraphs + website link. **Use `/author-info <author name>` to extract the bio from Vellum** instead of leaving a placeholder. If the interview markdown already has a bio, prefer the Vellum version (canonical source) but flag any differences to Jamie.
+5. **Read the Story** — `<!-- wp:heading -->` + paragraph with anthology name only (no buy link — the CTA pattern provides that)
+6. **CTA Pattern** — `<!-- wp:block {"ref":PATTERN_ID} /-->` (Haunted Waters: 5400, Haunted Places: 5146). The pattern renders a buy link and cover image — do NOT add a separate "Buy the book" paragraph.
 
 ### Author Voice Rules
 

@@ -19,14 +19,16 @@ Search these paths in order:
 
 1. `docs/session-comms/<filename>.md` (pub-tools — for local discussions)
 2. `docs/session-comms/<filename>` (if extension was included)
-3. `~/Dropbox/dev/inkwren/inkwren-develop/internal-docs/session-comms/<filename>.md` (Inkwren — for cross-team discussions)
-4. `~/Dropbox/dev/inkwren/inkwren-develop/internal-docs/session-comms/<filename>` (if extension was included)
-5. `~/Dropbox/dev/calliopelabs/rookery/docs/session-comms/<filename>.md` (Rookery — for cross-team discussions)
-6. `~/Dropbox/dev/calliopelabs/rookery/docs/session-comms/<filename>` (if extension was included)
+3. `~/Dropbox/dev/publishing/docs/session-comms/<filename>.md` (publishing — for Bramble/publisher discussions)
+4. `~/Dropbox/dev/publishing/docs/session-comms/<filename>` (if extension was included)
+5. `~/Dropbox/dev/inkwren/inkwren-develop/internal-docs/session-comms/<filename>.md` (Inkwren — for cross-team discussions)
+6. `~/Dropbox/dev/inkwren/inkwren-develop/internal-docs/session-comms/<filename>` (if extension was included)
+7. `~/Dropbox/dev/calliopelabs/rookery/docs/session-comms/<filename>.md` (Rookery — for cross-team discussions)
+8. `~/Dropbox/dev/calliopelabs/rookery/docs/session-comms/<filename>` (if extension was included)
 
-When you find the file, say where: "Found in pub-tools session-comms", "Found in Inkwren session-comms (cross-team)", or "Found in Rookery session-comms (cross-team)".
+When you find the file, say where: "Found in pub-tools session-comms", "Found in publishing session-comms", "Found in Inkwren session-comms (cross-team)", or "Found in Rookery session-comms (cross-team)".
 
-If not found in any location, tell Jamie: "File `<filename>` not found in pub-tools, Inkwren, or Rookery session-comms."
+If not found in any location, tell Jamie: "File `<filename>` not found in pub-tools, publishing, Inkwren, or Rookery session-comms."
 
 If the file doesn't exist and Jamie's intent seems to be creating a new thread, create it in `docs/session-comms/` with this template:
 

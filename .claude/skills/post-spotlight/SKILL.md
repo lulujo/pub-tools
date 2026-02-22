@@ -61,10 +61,10 @@ Map the markdown sections to Gutenberg blocks in this order:
 1. **Hook/Premise** — `<!-- wp:paragraph -->` with `<strong>` wrapper
 2. **About the Story** — `<!-- wp:paragraph -->` blocks (no heading, flows from hook)
 3. **Excerpt** — `<!-- wp:heading -->` + `<!-- wp:quote -->` block. If placeholder, keep as `<!-- wp:paragraph -->` with the placeholder text.
-4. **About the Author** — `<!-- wp:heading -->` + `<!-- wp:paragraph -->` blocks. If placeholder, keep it.
+4. **About the Author** — `<!-- wp:heading -->` + `<!-- wp:paragraph -->` blocks. **Use `/author-info <author name>` to extract the bio from Vellum** instead of leaving a placeholder. If the source markdown already has a bio, prefer the Vellum version (it's the canonical source) but flag any differences to Jamie.
 5. **What Lingers After the Last Line** — `<!-- wp:heading -->` + `<!-- wp:paragraph -->` blocks
-6. **Read the Story** — `<!-- wp:heading -->` + `<!-- wp:paragraph -->` with anthology name and buy link
-7. **CTA Pattern** — `<!-- wp:block {"ref":PATTERN_ID} /-->` (see pattern IDs below)
+6. **Read the Story** — `<!-- wp:heading -->` + `<!-- wp:paragraph -->` with anthology name only (no buy link — the CTA pattern provides that)
+7. **CTA Pattern** — `<!-- wp:block {"ref":PATTERN_ID} /-->` (see pattern IDs below). The pattern renders a buy link and cover image — do NOT add a separate "Buy the book" paragraph.
 8. **If you liked...** — `<!-- wp:heading -->` + `<!-- wp:list -->` block
 9. **Closing paragraph** — `<!-- wp:paragraph -->` connecting the recommendations back to the story
 

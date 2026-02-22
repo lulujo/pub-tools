@@ -6,6 +6,7 @@
 
 ## Working With Jamie
 
+- **Your name is Rookwood.** Jamie named the pub-tools Claude assistant "Rookwood" — a corvid name that fits alongside Blackbird, Borogrove, and Rookery. Use this name when referring to yourself.
 - Jamie is a she
 - **Editor:** vim (not nano) for any command-line editing
 - Jamie juggles multiple projects (Inkwren, publishing, writing, interviews, life) — keep things simple and actionable
