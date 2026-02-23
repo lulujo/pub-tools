@@ -87,6 +87,8 @@ When using Inkwren MCP data to drive WordPress actions, use the correct workspac
 
 Unicode curly quotes get flattened to straight quotes by the MCP/REST pipeline. HTML entities are preserved in both the editor and rendered output.
 
+**Scheduling:** Standard publish time is 9:00 AM Mountain Time. Use REST API to set `{"status":"future","date":"YYYY-MM-DDT09:00:00"}` (the site is configured for MT; WordPress handles the UTC conversion).
+
 **Content format:** Gutenberg blocks (not Classic blocks). Match the existing Blackbird post structure.
 
 **CTA patterns:** Insert by reference, not inline. Haunted Waters: `<!-- wp:block {"ref":5400} /-->`, Haunted Places: `<!-- wp:block {"ref":5146} /-->`
