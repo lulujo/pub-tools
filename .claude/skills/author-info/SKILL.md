@@ -53,9 +53,9 @@ Convert the extracted data to Gutenberg blocks with HTML entities.
 
 Use HTML entities for all special characters (see CLAUDE.md table).
 
-### Social Links
+### Website Link
 
-If the author has a website URL in their bio text, extract it. Format social links as a paragraph after the bio:
+If the author has a website URL in their bio text, extract it and format as a paragraph after the bio:
 
 ```html
 <!-- wp:paragraph -->
@@ -63,17 +63,7 @@ If the author has a website URL in their bio text, extract it. Format social lin
 <!-- /wp:paragraph -->
 ```
 
-If additional social profiles exist, list them:
-
-```html
-<!-- wp:paragraph -->
-<p>Connect with [First Name]: <a href="https://facebook.com/..." rel="noopener" target="_blank">Facebook</a> · <a href="https://bookbub.com/..." rel="noopener" target="_blank">BookBub</a> · <a href="https://goodreads.com/..." rel="noopener" target="_blank">Goodreads</a> · <a href="https://amazon.com/..." rel="noopener" target="_blank">Amazon</a></p>
-<!-- /wp:paragraph -->
-```
-
-**Social link display order:** Website (from bio text) first, then: Facebook, Instagram, BookBub, Goodreads, Amazon, X, Bluesky, others alphabetically.
-
-**Omit empty social links** (some authors have platform keys with blank values).
+**Do not include individual social media links.** The author's website is the canonical hub — they maintain their own social links there. Including social links in posts creates link rot and off-ramps before the CTA.
 
 ### Bio Text Cleanup
 
