@@ -24,7 +24,7 @@ Confirm the file exists and check the file type (jpg, png, webp).
 The MCP `create_media` tool only accepts URLs. For local files, use the direct REST API:
 
 ```bash
-WP_PASS=$(grep CLAUDE_BLACKBIRD_WP_PASSWORD /Users/jamieferguson/Dropbox/dev/pub-tools/.env | cut -d= -f2) && \
+source /Users/jamieferguson/Dropbox/dev/pub-tools/.env && WP_PASS=$(echo "$CLAUDE_BLACKBIRD_WP_PASSWORD" | tr -d ' ') && \
 curl -s -X POST "https://blackbirdpublishing.com/wp-json/wp/v2/media" \
   -u "claude:${WP_PASS}" \
   -H 'Content-Disposition: attachment; filename="Clean-Filename.jpg"' \

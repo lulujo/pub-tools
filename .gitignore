@@ -19,5 +19,5 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Claude Code local config (credentials stored here, not in repo)
-# Credentials are configured per-user via: claude mcp add
+# Claude Code local config (contains local paths and credential references)
+.mcp.json

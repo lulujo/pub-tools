@@ -101,7 +101,7 @@ Check for a featured image:
 If found, upload via REST API (MCP `create_media` can't handle local files):
 
 ```bash
-WP_PASS=$(grep CLAUDE_BLACKBIRD_WP_PASSWORD .env | cut -d= -f2) && \
+source /Users/jamieferguson/Dropbox/dev/pub-tools/.env && WP_PASS=$(echo "$CLAUDE_BLACKBIRD_WP_PASSWORD" | tr -d ' ') && \
 curl -s -X POST "https://blackbirdpublishing.com/wp-json/wp/v2/media" \
   -u "claude:${WP_PASS}" \
   -H 'Content-Disposition: attachment; filename="Haunted-Waters-Spotlight-Author-Name.jpg"' \
