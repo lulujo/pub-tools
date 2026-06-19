@@ -133,37 +133,14 @@ WordPress does not support HTML in post titles. `<em>` tags get escaped to liter
 ### WordPress Filename Normalization
 WordPress lowercases and hyphenates filenames on upload. A local file named `Cover FInal.jpg` (with a typo'd capital "I") becomes `cover-final.jpg` in the URL. So a sloppy local filename never makes it to the public URL — no need to rename locally and re-upload for cosmetic fixes. Use the existing media ID's `source_url` (look it up via `GET /wp-json/wp/v2/media/<id>`) rather than constructing URLs from the source filename.
 
-### Multi-Post Series Workflow
-For 3+ posts in a series (e.g., bundle interviews, anthology spotlights), extract the shared scaffolding into a single helpers module and `import` from per-post scripts. Cuts most of the per-post code and prevents drift across posts.
+### Bundle Interview Posts &mdash; use the `/post-bundle-interview` skill
+StoryBundle author interviews (Escape from 2026, Write Stuff, future bundles) are now handled by a committed, tested engine &mdash; **do not rebuild a converter in /tmp**:
+- Skill: `.claude/skills/post-bundle-interview/SKILL.md` (full workflow + config format)
+- Engine: `integrations/wordpress/md_to_gutenberg.py` (markdown&rarr;Gutenberg conversion, retry-wrapped REST, idempotent media reuse, `verify()` self-checks)
+- Tests: `integrations/wordpress/test_md_to_gutenberg.py` &mdash; run after any engine change. Each case is a real bug we hit (nested bold/italic, opening-quote-after-`*`/em-dash, en dash, `E=mc²`, ampersands, italic-inside-link). The converter rationale lives in the engine docstring.
 
-Shared bits to factor out:
-- Block builders: `p()`, `h2()`, `sep()`, `q()` (bold question), `cover_block(media_id, url, alt)`, `find_list(links)`, `bundle_montage()`
-- Bundle constants: bundle banner media ID + URL, bundle banner alt text, bundle CTA text, bundle URL
-- HTML entity shortcuts: `LDQUO`, `RDQUO`, `RSQUO`, `MDASH`, `HELLIP`
-- The `post_to_wp(post_dict)` REST API caller (with the User-Agent header — WPEngine 1010s without it)
-- An `assemble(cover, intros, qa, bio, find_heading, find_html, book_title_html)` function that builds the full content from per-post inputs
-
-The per-post script then becomes ~80% data (intros, Q&A pairs, bio, find links, post metadata) and ~20% wiring. See `/tmp/escape_helpers.py` from the Escape from 2026 series for a working example pattern (the file itself is ephemeral; rebuild it at the start of a new series).
-
-### Markdown&rarr;Gutenberg Entity Conversion (smart quotes / dashes)
-
-Bramble&rsquo;s `interview_post.md` source files use **straight quotes and Unicode em dashes only** (no curly quotes, no entities). When auto-converting to HTML entities, two edge cases will silently corrupt output if the converter is naive (both hit during the 2026-06-13 Escape batch):
-
-1. **Nested bold + italic.** A `**bold question**` containing an `*italic*` (e.g. Annie&rsquo;s *Gray Lady* / *What-Ifs&hellip;*) breaks a `\*\*([^*]+)\*\*` bold regex (the inner `*` blocks the character class). Use a **non-greedy** match: `\*\*(.+?)\*\*`, then convert single-`*` italics afterward.
-
-2. **Opening quote after `*` or em dash.** A `"` whose preceding char is `**` (e.g. `**"Comstock"`) or an em dash (e.g. `justice—"something"`) gets mis-rendered as a *closing* `&rdquo;` because the &ldquo;opening&rdquo; rule only looked for whitespace/brackets. Fix: run **smart-quotes before em-dash conversion** and include `*` and `—` in the opening-quote lookbehind set: `(^|[\s\(\[\{\*—])"` (and the same for single quotes).
-
-**Always verify the generated content** before/after creating the post: assert zero stray `*` in the tag-stripped text, and grep for `(?:<p>|<strong>|<em>|&mdash;)&rdquo;` (an opening quote mis-rendered as closing) &mdash; both should be zero.
-
-Additional character handling the converter must cover (all seen in real source files):
-- **Ellipsis** `…` &rarr; `&hellip;` &middot; **En dash** `–` &rarr; `&ndash;` (number ranges, keep no spaces) &middot; **Superscript two** `²` &rarr; `&sup2;`
-- **Bare ampersand** `&` &rarr; `&amp;` &mdash; use a negative-lookahead so existing entities aren&rsquo;t double-encoded: `re.sub(r'&(?!(?:[a-zA-Z]+|#\d+);)', '&amp;', t)`, run **first**
-- **Accented letters** (`à`, etc.) &mdash; leave as UTF-8; WordPress stores UTF-8 fine. Only quotes/dashes/ellipsis/`&`/`²` need entities.
-- **Inline links** `[text](url)` &rarr; `<a target="_blank" rel="noopener">`; `[*Title*](url)` correctly nests `<em>` inside `<a>` if links are converted before italics.
-- **"Find" heading parse** must accept multi-word author names (e.g. "Find Douglas Smith"): split on `^##\s+Find\b.*$`, capture name with `^##\s+Find\s+(.+?)\s*$`. A single-word `\w+` form silently drops the whole Find section.
-
-### WPEngine/Cloudflare 5xx during bulk REST &mdash; retry + idempotency
-Bulk REST runs occasionally hit transient **522/525** from Cloudflare/WPEngine. Wrap every REST call in a **retry-on-5xx** loop (4 tries, backoff). Media uploads are **not idempotent**: a failure *after* the image POST but *before* the alt-text POST leaves an orphan upload. Before re-running a failed upload batch, `GET /media?search=<filename>` to find what already landed and resume from there rather than blindly re-uploading (creates duplicates).
+### WPEngine/Cloudflare 5xx during bulk REST
+Bulk REST runs occasionally hit transient **522/525** from Cloudflare/WPEngine, and WPEngine 1010s any request without a `User-Agent` header. The engine above already wraps calls in retry-on-5xx and reuses already-uploaded media (a 522 between the image POST and the alt-text POST otherwise leaves an orphan upload). For any *other* REST work, do the same: set a UA, retry 5xx, and `GET /media?search=<filename>` before re-uploading to avoid duplicates.
 
 ---
 
