@@ -1,0 +1,12 @@
+#!/bin/sh
+# Run the md_to_gutenberg engine tests when the engine or its tests are staged.
+# Bypass with `git commit --no-verify` if you ever need to.
+
+if git diff --cached --name-only \
+    | grep -qE 'integrations/wordpress/(md_to_gutenberg|test_md_to_gutenberg)\.py$'; then
+    echo "pre-commit: running md_to_gutenberg tests…"
+    if ! ( cd integrations/wordpress && python3 test_md_to_gutenberg.py ); then
+        echo "pre-commit: tests FAILED — commit aborted (override with --no-verify)." >&2
+        exit 1
+    fi
+fi

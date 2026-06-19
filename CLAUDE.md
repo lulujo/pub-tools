@@ -57,11 +57,11 @@ This repo contains **integration code and tooling only**. Content lives in the p
 
 ## Current Status
 
-- **WordPress integration:** Phases 1-3 complete. MCP + REST API working. Draft posts, featured images, and CTA patterns all confirmed.
-- **Buffer integration:** Identified as next target, not yet started
-- **Next up:** PUB-5 (scheduled posts), PUB-6 (Rank Math SEO), PUB-7 (production workflow)
-- See `integrations/wordpress/IMPLEMENTATION_PLAN.md` for the phased rollout
-- See `integrations/wordpress/SITE_INVENTORY.md` for categories, tags, tools, and confirmed patterns
+- **WordPress integration:** Phases 1&ndash;5 complete (PUB-1 through PUB-5 Done). MCP + REST API working &mdash; draft posts, featured images, CTA patterns, and scheduled posts all confirmed.
+- **Bundle interview production (active):** Escape from 2026 StoryBundle interviews in flight. Automated by the `/post-bundle-interview` skill backed by the tested `integrations/wordpress/md_to_gutenberg.py` engine. Coordinated with Bramble via `~/Dropbox/dev/publishing/docs/session-comms/rookwood-escape-from-2026-interviews.md`.
+- **In progress:** PUB-6 (Rank Math SEO meta fields).
+- **Backlog:** PUB-7 (production workflow), PUB-8 (Substack MCP investigation), PUB-9 (Buffer integration &mdash; social drafts for published posts).
+- See `integrations/wordpress/IMPLEMENTATION_PLAN.md` for the phased rollout and `SITE_INVENTORY.md` for categories, tags, and confirmed patterns.
 
 ## MCP Server Setup
 
