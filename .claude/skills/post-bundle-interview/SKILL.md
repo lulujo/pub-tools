@@ -37,7 +37,51 @@ Bramble's requests live in `~/Dropbox/dev/publishing/docs/session-comms/rookwood
 
 ## Step 3: Build a batch config
 
-Write a JSON config (one entry per post — batches of 1–3 are normal):
+The config has bundle-wide `defaults` plus a `posts` list. Each post can be specified two ways — **prefer the sidecar** when Bramble provides one.
+
+### Preferred: sidecar mode (`post.yaml`)
+
+As of 2026-06-19 Bramble drops a `post.yaml` next to each `interview_post.md` carrying the machine fields (title, slug, banner, cover, alts, author_tag, optional excerpt). This removes the transcription step — **you don't retype titles/slugs/alt-text**. You only author the bundle `defaults` (constant per bundle) and point at each sidecar. Human notes (voice, "this link is intentional," sensitivities) stay on the **thread** — read those too; the parser only reads the sidecar.
+
+```json
+{
+  "defaults": {
+    "category": 4, "author": 2, "series_tag": 393,
+    "project_root": "/Users/jamieferguson/Dropbox/dev/publishing/projects/escape_from_2026",
+    "bundle_banner_id": 5698,
+    "bundle_banner_url": "https://blackbirdpublishing.com/wp-content/uploads/2026/06/escape-from-2026-bundle-banner-1200x675-1.png",
+    "bundle_banner_alt": "Escape from 2026 StoryBundle: 15 exclusive books of alternate history and time travel, available at storybundle.com/timetravel",
+    "cover_width_px": 300, "reuse_media": true
+  },
+  "posts": [
+    {"sidecar": "/Users/jamieferguson/Dropbox/dev/publishing/projects/escape_from_2026/authors/ready to publish/jason_chen/post.yaml"}
+  ]
+}
+```
+
+- `project_root` is required in sidecar mode — the sidecar's `banner`/`cover` paths (`blog_header_images/…`, `All Covers/…`) resolve against it. `interview_md` defaults to `interview_post.md` beside the sidecar.
+- `slug` from the sidecar is **authoritative** — the engine never derives it.
+- `category` and `series_tag` are NOT in the sidecar (constants you hold in `defaults`).
+
+### Fallback: inline fields
+
+If there's no sidecar (older posts, ad-hoc), give the fields directly. Same `defaults` block; each post entry carries:
+
+```json
+    {
+      "interview_md": "/abs/path/.../doug_smith/interview_post.md",
+      "title": "Interview: Douglas Smith on Into the Time Slip",
+      "slug": "interview-douglas-smith-into-the-time-slip",
+      "banner": ".../blog_header_images/douglas_smith.png",
+      "banner_alt": "Interview with Douglas Smith — Into the Time Slip — Escape from 2026 StoryBundle",
+      "cover": ".../All Covers/Into the Time Slip Cover Final.jpg",
+      "cover_alt": "Cover of Into the Time Slip by Douglas Smith",
+      "author_tag": "Douglas Smith",
+      "excerpt": "<optional 1–2 sentence excerpt, HTML entities ok>"
+    }
+```
+
+(Inline fields override sidecar fields if both are present, so you can patch one value without editing Bramble's file.)
 
 ```json
 {

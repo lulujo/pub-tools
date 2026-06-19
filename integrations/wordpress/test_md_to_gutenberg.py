@@ -9,9 +9,12 @@ StoryBundle interviews. Run after any change to md_to_gutenberg.py:
 Exits non-zero on the first failure.
 """
 
+import os
 import sys
+import tempfile
 
-from md_to_gutenberg import inline, verify, list_block
+from md_to_gutenberg import (inline, verify, list_block,
+                             parse_sidecar_text, read_sidecar, resolve_post)
 
 CASES = [
     # (description, markdown input, expected HTML output)
@@ -98,7 +101,64 @@ def run():
         failures += 1
         print("FAIL: list_block did not render link list item")
 
-    total = len(CASES) + len(verify_cases) + 1
+    # --- sidecar (post.yaml) parsing ---
+    SIDECAR = '''# Escape from 2026 — Douglas Smith
+title: "Interview: Douglas Smith on Into the Time Slip"
+slug: interview-douglas-smith-into-the-time-slip
+banner: blog_header_images/douglas_smith.png
+cover: "All Covers/Into the Time Slip Cover Final.jpg"
+banner_alt: "Interview with Douglas Smith — Into the Time Slip — Escape from 2026 StoryBundle"
+cover_alt: "Cover of Into the Time Slip by Douglas Smith"
+author_tag: "Douglas Smith"
+excerpt: "A short excerpt."
+'''
+    sc = parse_sidecar_text(SIDECAR)
+    sidecar_checks = [
+        ("title keeps its colon", sc.get("title"), "Interview: Douglas Smith on Into the Time Slip"),
+        ("unquoted slug", sc.get("slug"), "interview-douglas-smith-into-the-time-slip"),
+        ("unquoted path", sc.get("banner"), "blog_header_images/douglas_smith.png"),
+        ("quoted path with spaces", sc.get("cover"), "All Covers/Into the Time Slip Cover Final.jpg"),
+        ("author_tag", sc.get("author_tag"), "Douglas Smith"),
+        ("comment line ignored", "# Escape from 2026 — Douglas Smith" in sc, False),
+    ]
+    for desc, got, expected in sidecar_checks:
+        if got != expected:
+            failures += 1
+            print(f"FAIL (sidecar): {desc} — expected {expected!r}, got {got!r}")
+
+    # resolve_post: relative paths join project_root; absolute untouched; sidecar
+    # interview_md defaults to interview_post.md beside the sidecar.
+    rp = resolve_post(
+        {"banner": "b/x.png", "cover": "c/y.jpg", "interview_md": "a/i.md"},
+        {"project_root": "/ROOT"})
+    resolve_checks = [
+        ("relative banner", rp["banner"], "/ROOT/b/x.png"),
+        ("relative cover", rp["cover"], "/ROOT/c/y.jpg"),
+        ("relative interview_md", rp["interview_md"], "/ROOT/a/i.md"),
+    ]
+    abs_rp = resolve_post({"banner": "/abs/x.png"}, {"project_root": "/ROOT"})
+    resolve_checks.append(("absolute path untouched", abs_rp["banner"], "/abs/x.png"))
+
+    with tempfile.TemporaryDirectory() as d:
+        scp = os.path.join(d, "post.yaml")
+        open(scp, "w", encoding="utf-8").write(SIDECAR)
+        rp2 = resolve_post({"sidecar": scp}, {"project_root": d})
+        resolve_checks.append(
+            ("sidecar fills slug", rp2.get("slug"), "interview-douglas-smith-into-the-time-slip"))
+        resolve_checks.append(
+            ("interview_md defaults beside sidecar", rp2.get("interview_md"),
+             os.path.join(d, "interview_post.md")))
+        resolve_checks.append(
+            ("sidecar relative banner joins root", rp2.get("banner"),
+             os.path.join(d, "blog_header_images/douglas_smith.png")))
+
+    for desc, got, expected in resolve_checks:
+        if got != expected:
+            failures += 1
+            print(f"FAIL (resolve): {desc} — expected {expected!r}, got {got!r}")
+
+    total = (len(CASES) + len(verify_cases) + 1
+             + len(sidecar_checks) + len(resolve_checks))
     if failures:
         print(f"\n{failures} of {total} checks FAILED")
         return 1

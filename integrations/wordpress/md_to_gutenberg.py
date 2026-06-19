@@ -361,8 +361,64 @@ def load_password(env_path):
     raise SystemExit(f"CLAUDE_BLACKBIRD_WP_PASSWORD not found in {env_path}")
 
 
+def parse_sidecar_text(text):
+    """Minimal flat-YAML reader for `post.yaml` sidecars: one `key: value` per
+    line. Values may be quoted, which is how colons inside a value survive
+    (e.g. `title: "Interview: X on Y"`). No nesting and no inline comments —
+    any value with special characters must be quoted (Bramble's template does)."""
+    data = {}
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or ":" not in line:
+            continue
+        key, _, val = line.partition(":")
+        key, val = key.strip(), val.strip()
+        if val[:1] in ('"', "'"):
+            q = val[0]
+            end = val.find(q, 1)
+            val = val[1:end] if end != -1 else val[1:]
+        if key:
+            data[key] = val
+    return data
+
+
+def read_sidecar(path):
+    return parse_sidecar_text(open(path, encoding="utf-8").read())
+
+
+def resolve_post(post, defaults):
+    """Expand a post entry into a full field set. If it references a `sidecar`
+    (a `post.yaml` authored by Bramble), load those fields; explicit JSON keys
+    override the sidecar. Relative banner/cover/interview_md paths resolve
+    against `defaults['project_root']`; a missing interview_md defaults to
+    `interview_post.md` beside the sidecar."""
+    p = {}
+    if post.get("sidecar"):
+        p.update(read_sidecar(post["sidecar"]))
+        p.setdefault("interview_md",
+                     os.path.join(os.path.dirname(post["sidecar"]), "interview_post.md"))
+    for k, v in post.items():
+        if k != "sidecar":
+            p[k] = v
+    root = defaults.get("project_root", "")
+    for key in ("banner", "cover", "interview_md"):
+        if p.get(key) and not os.path.isabs(p[key]):
+            p[key] = os.path.join(root, p[key])
+    return p
+
+
+_REQUIRED = ("interview_md", "title", "slug", "banner", "banner_alt",
+             "cover", "cover_alt", "author_tag")
+
+
 def process_post(wp, post, defaults, dry_run):
-    """Convert and (unless dry-run) create one draft. Returns a report dict."""
+    """Convert and (unless dry-run) create one draft. Returns a report dict.
+    `post` is expected already resolved via resolve_post()."""
+    missing = [k for k in _REQUIRED if not post.get(k)]
+    if missing:
+        return {"title": post.get("title", "?"), "slug": post.get("slug", "?"),
+                "qa_blocks": 0, "created": False,
+                "problems": [f"missing required field(s): {', '.join(missing)}"]}
     parsed = parse_interview(post["interview_md"])
     width = defaults.get("cover_width_px", 300)
     report = {"title": post["title"], "slug": post["slug"], "qa_blocks": len(parsed["qa"])}
@@ -448,8 +504,9 @@ def main():
         wp = WP(base, user, load_password(args.env))
 
     any_problem = False
-    for post in cfg["posts"]:
-        sys.stderr.write(f"\n=== {post['title']} ===\n")
+    for entry in cfg["posts"]:
+        post = resolve_post(entry, defaults)
+        sys.stderr.write(f"\n=== {post.get('title', '(unresolved sidecar)')} ===\n")
         report = process_post(wp, post, defaults, args.dry_run)
         if args.dry_run:
             print(f"\n===== {report['title']} ({report['qa_blocks']} Q&A blocks) =====")
