@@ -127,6 +127,8 @@ When using Inkwren MCP data to drive WordPress actions, use the correct workspac
 | Borogrove Press | TBD | Future |
 | Jamie (personal writing) | TBD | Future |
 
+**MCP wiring:** All three Inkwren workspace keys are in `.env` (`INKWREN_AUTH_TOKEN_BLACKBIRD` / `_BOROGROVE` / `_JAMIE`), but **only Blackbird is wired into the MCP server** for Rookwood — Rookwood acts on WordPress and only Blackbird has a live site. To add a workspace when its site launches, register a second instance (e.g. `inkwren-borogrove`) per the `/mcp` skill. (Bramble, the coordinator in the publishing repo, has all three wired — it needs cross-workspace visibility.)
+
 ## WordPress Integration
 
 - **MCP server:** `blackbird-wp` (InstaWP/mcp-wp via npx)
