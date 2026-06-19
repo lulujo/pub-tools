@@ -6,7 +6,7 @@
 
 | Role | Status | Last Active | Notes |
 |------|--------|-------------|-------|
-| Rookwood | Done | 2026-06-13 | Escape from 2026: created drafts 5715/5716/5717 (Jason, Annie, Kari) |
+| Rookwood | Done | 2026-06-19 | Escape from 2026: created drafts 5733/5734/5735 (Doug, DeAnna, Michael); prior batch 5715-5717 published |
 
 **Status Icons:** -- Idle | Active | Blocked | Done
 
@@ -16,7 +16,7 @@
 
 Read this file to pick up where the last session left off:
 
-> docs/session-comms/handoff-2026-06-13.md
+> docs/session-comms/handoff-2026-06-19.md
 
 ---
 
@@ -154,6 +154,16 @@ Bramble&rsquo;s `interview_post.md` source files use **straight quotes and Unico
 2. **Opening quote after `*` or em dash.** A `"` whose preceding char is `**` (e.g. `**"Comstock"`) or an em dash (e.g. `justice—"something"`) gets mis-rendered as a *closing* `&rdquo;` because the &ldquo;opening&rdquo; rule only looked for whitespace/brackets. Fix: run **smart-quotes before em-dash conversion** and include `*` and `—` in the opening-quote lookbehind set: `(^|[\s\(\[\{\*—])"` (and the same for single quotes).
 
 **Always verify the generated content** before/after creating the post: assert zero stray `*` in the tag-stripped text, and grep for `(?:<p>|<strong>|<em>|&mdash;)&rdquo;` (an opening quote mis-rendered as closing) &mdash; both should be zero.
+
+Additional character handling the converter must cover (all seen in real source files):
+- **Ellipsis** `…` &rarr; `&hellip;` &middot; **En dash** `–` &rarr; `&ndash;` (number ranges, keep no spaces) &middot; **Superscript two** `²` &rarr; `&sup2;`
+- **Bare ampersand** `&` &rarr; `&amp;` &mdash; use a negative-lookahead so existing entities aren&rsquo;t double-encoded: `re.sub(r'&(?!(?:[a-zA-Z]+|#\d+);)', '&amp;', t)`, run **first**
+- **Accented letters** (`à`, etc.) &mdash; leave as UTF-8; WordPress stores UTF-8 fine. Only quotes/dashes/ellipsis/`&`/`²` need entities.
+- **Inline links** `[text](url)` &rarr; `<a target="_blank" rel="noopener">`; `[*Title*](url)` correctly nests `<em>` inside `<a>` if links are converted before italics.
+- **"Find" heading parse** must accept multi-word author names (e.g. "Find Douglas Smith"): split on `^##\s+Find\b.*$`, capture name with `^##\s+Find\s+(.+?)\s*$`. A single-word `\w+` form silently drops the whole Find section.
+
+### WPEngine/Cloudflare 5xx during bulk REST &mdash; retry + idempotency
+Bulk REST runs occasionally hit transient **522/525** from Cloudflare/WPEngine. Wrap every REST call in a **retry-on-5xx** loop (4 tries, backoff). Media uploads are **not idempotent**: a failure *after* the image POST but *before* the alt-text POST leaves an orphan upload. Before re-running a failed upload batch, `GET /media?search=<filename>` to find what already landed and resume from there rather than blindly re-uploading (creates duplicates).
 
 ---
 
