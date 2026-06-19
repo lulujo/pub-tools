@@ -62,7 +62,8 @@ Use `mcp__blackbird-wp__create_post` with:
 - `status`: `draft` (NEVER publish)
 - `slug`: `interview-story-title-by-author-name`
 - `categories`: `[4]` for interviews
-- `tags`: `[378]` for Haunted Waters (add author tag if it exists)
+- `tags`: anthology/project tag (e.g., `[378]` for Haunted Waters, `[387]` for Write Stuff StoryBundle, `[393]` for Escape from 2026 StoryBundle) + author tag. **Always create or find an author-name tag** — search existing tags first, create via REST API if needed.
+- `author`: `2` (Blackbird Publishing). Posts default to the `claude` user otherwise, which isn't visible in the editor UI but shows on the published post. Always set this.
 
 ## Step 5: Featured Image
 

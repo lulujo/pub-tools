@@ -100,6 +100,7 @@ Use `mcp__blackbird-wp__create_post` with:
 - `slug`: `anthology-title-subtitle-words` (lowercase, hyphens)
 - `categories`: `[16]` (New Releases)
 - `tags`: anthology tag ID if one exists
+- `author`: `2` (Blackbird Publishing). Posts default to the `claude` user otherwise, which isn't visible in the editor UI but shows on the published post. Always set this.
 
 **Title note:** Use an em dash (`&mdash;`) between title and subtitle: "Haunted Waters&mdash;15 Tales from the Depths". This matches Jamie's house style (em dashes, no spaces).
 

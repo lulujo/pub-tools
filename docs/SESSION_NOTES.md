@@ -6,7 +6,7 @@
 
 | Role | Status | Last Active | Notes |
 |------|--------|-------------|-------|
-| Rookwood | Idle | 2026-04-04 | MCP npm setup complete, verify connection in fresh session |
+| Rookwood | Done | 2026-06-13 | Escape from 2026: created drafts 5715/5716/5717 (Jason, Annie, Kari) |
 
 **Status Icons:** -- Idle | Active | Blocked | Done
 
@@ -16,7 +16,7 @@
 
 Read this file to pick up where the last session left off:
 
-> docs/session-comms/handoff-2026-04-04.md
+> docs/session-comms/handoff-2026-06-13.md
 
 ---
 
@@ -101,6 +101,59 @@ Commands: `list`, `state PUB-X "Done"`, `state PUB-X "In Progress"`, `next-task`
 - `inkwren_` prefix applied by MCP server in `register-tools.ts`
 - **Env vars must be exported before starting Claude Code.** The `.env` file stores tokens but MCP servers inherit from the shell environment, not `.env` directly. Run `set -a && source .env && set +a` in the pub-tools directory before launching `claude`. Without this, Inkwren MCP tools won't appear.
 - For diagnostics, use the `/mcp` skill
+
+### Gutenberg Image Blocks (resized)
+
+For a resized image block to validate, **all three** of these must be in sync:
+
+1. `"width":"300px"` in the block JSON attributes
+2. `is-resized` class on `<figure>` (auto-derived from the `width` attribute, **not** something you put in `"className"`)
+3. `style="width:300px"` on the `<img>` only (not the `<figure>`)
+
+If any of these are missing or contradict each other, the editor shows "Block contains unexpected or invalid content" and "Attempt recovery" silently drops the resize, rendering the image full-width.
+
+**Correct:**
+```html
+<!-- wp:image {"id":123,"width":"300px","sizeSlug":"full","linkDestination":"none","align":"center"} -->
+<figure class="wp-block-image aligncenter size-full is-resized"><img src="..." class="wp-image-123" style="width:300px"/></figure>
+<!-- /wp:image -->
+```
+
+**Wrong (recovery strips the resize, image renders huge):**
+```html
+<!-- wp:image {"id":123,"sizeSlug":"full","className":"is-resized"} -->
+<figure class="wp-block-image size-full is-resized"><img src="..." style="width:300px"/></figure>
+<!-- /wp:image -->
+```
+The `width` attribute is missing from the JSON, so Gutenberg can't reconcile the inline `style` against the block spec.
+
+### WordPress Post Titles
+WordPress does not support HTML in post titles. `<em>` tags get escaped to literal text. Book titles cannot be italicized in titles — use plain text instead.
+
+### WordPress Filename Normalization
+WordPress lowercases and hyphenates filenames on upload. A local file named `Cover FInal.jpg` (with a typo'd capital "I") becomes `cover-final.jpg` in the URL. So a sloppy local filename never makes it to the public URL — no need to rename locally and re-upload for cosmetic fixes. Use the existing media ID's `source_url` (look it up via `GET /wp-json/wp/v2/media/<id>`) rather than constructing URLs from the source filename.
+
+### Multi-Post Series Workflow
+For 3+ posts in a series (e.g., bundle interviews, anthology spotlights), extract the shared scaffolding into a single helpers module and `import` from per-post scripts. Cuts most of the per-post code and prevents drift across posts.
+
+Shared bits to factor out:
+- Block builders: `p()`, `h2()`, `sep()`, `q()` (bold question), `cover_block(media_id, url, alt)`, `find_list(links)`, `bundle_montage()`
+- Bundle constants: bundle banner media ID + URL, bundle banner alt text, bundle CTA text, bundle URL
+- HTML entity shortcuts: `LDQUO`, `RDQUO`, `RSQUO`, `MDASH`, `HELLIP`
+- The `post_to_wp(post_dict)` REST API caller (with the User-Agent header — WPEngine 1010s without it)
+- An `assemble(cover, intros, qa, bio, find_heading, find_html, book_title_html)` function that builds the full content from per-post inputs
+
+The per-post script then becomes ~80% data (intros, Q&A pairs, bio, find links, post metadata) and ~20% wiring. See `/tmp/escape_helpers.py` from the Escape from 2026 series for a working example pattern (the file itself is ephemeral; rebuild it at the start of a new series).
+
+### Markdown&rarr;Gutenberg Entity Conversion (smart quotes / dashes)
+
+Bramble&rsquo;s `interview_post.md` source files use **straight quotes and Unicode em dashes only** (no curly quotes, no entities). When auto-converting to HTML entities, two edge cases will silently corrupt output if the converter is naive (both hit during the 2026-06-13 Escape batch):
+
+1. **Nested bold + italic.** A `**bold question**` containing an `*italic*` (e.g. Annie&rsquo;s *Gray Lady* / *What-Ifs&hellip;*) breaks a `\*\*([^*]+)\*\*` bold regex (the inner `*` blocks the character class). Use a **non-greedy** match: `\*\*(.+?)\*\*`, then convert single-`*` italics afterward.
+
+2. **Opening quote after `*` or em dash.** A `"` whose preceding char is `**` (e.g. `**"Comstock"`) or an em dash (e.g. `justice—"something"`) gets mis-rendered as a *closing* `&rdquo;` because the &ldquo;opening&rdquo; rule only looked for whitespace/brackets. Fix: run **smart-quotes before em-dash conversion** and include `*` and `—` in the opening-quote lookbehind set: `(^|[\s\(\[\{\*—])"` (and the same for single quotes).
+
+**Always verify the generated content** before/after creating the post: assert zero stray `*` in the tag-stripped text, and grep for `(?:<p>|<strong>|<em>|&mdash;)&rdquo;` (an opening quote mis-rendered as closing) &mdash; both should be zero.
 
 ---
 

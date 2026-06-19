@@ -79,8 +79,10 @@ See `integrations/wordpress/BUY_LINKS.md` for the current anthology CTA pattern 
 | Anthology | Tag ID |
 |-----------|--------|
 | Haunted Waters | 378 |
+| Write Stuff StoryBundle | 387 |
+| Escape from 2026 StoryBundle | 393 |
 
-For author-name tags: search existing tags via REST API before creating new ones. Many authors already have tags.
+**Always add an author-name tag.** Search existing tags via REST API before creating new ones. Many authors already have tags. If not, create one.
 
 ## Step 5: Create the Draft
 
@@ -91,6 +93,7 @@ Use `mcp__blackbird-wp__create_post` with:
 - `slug`: `spotlight-story-title-by-author-name` (lowercase, hyphens)
 - `categories`: `[14]` for spotlights
 - `tags`: `[378]` for Haunted Waters (add author tag ID if it exists)
+- `author`: `2` (Blackbird Publishing). Posts default to the `claude` user otherwise, which isn't visible in the editor UI but shows on the published post. Always set this.
 
 ## Step 6: Featured Image (if available)
 
