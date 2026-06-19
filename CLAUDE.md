@@ -127,7 +127,7 @@ When using Inkwren MCP data to drive WordPress actions, use the correct workspac
 | Borogrove Press | TBD | Future |
 | Jamie (personal writing) | TBD | Future |
 
-**MCP wiring:** All three Inkwren workspace keys are in `.env` (`INKWREN_AUTH_TOKEN_BLACKBIRD` / `_BOROGROVE` / `_JAMIE`), but **only Blackbird is wired into the MCP server** for Rookwood — Rookwood acts on WordPress and only Blackbird has a live site. To add a workspace when its site launches, register a second instance (e.g. `inkwren-borogrove`) per the `/mcp` skill. (Bramble, the coordinator in the publishing repo, has all three wired — it needs cross-workspace visibility.)
+**MCP wiring:** All three Inkwren workspaces are wired into MCP for Rookwood as separate server instances — `inkwren` (Blackbird), `inkwren-borogrove`, and `inkwren-jamie` (personal writing) — so Rookwood can pull catalog data for any of Jamie's books/stories regardless of imprint (e.g. drafting a Borogrove post, or a story of Jamie's published by a third party, tracked in the Jamie workspace). Tools namespace by server: `mcp__inkwren__…`, `mcp__inkwren-borogrove__…`, `mcp__inkwren-jamie__…`. Keys live in `.env` (`INKWREN_AUTH_TOKEN_BLACKBIRD` / `_BOROGROVE` / `_JAMIE`); each server reads its literal token from `~/.claude.json` per the `/mcp` skill. **Note:** WordPress *actions* still need per-site credentials — only blackbirdpublishing.com has a `claude` Application Password today.
 
 ## WordPress Integration
 
