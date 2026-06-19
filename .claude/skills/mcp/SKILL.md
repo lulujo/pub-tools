@@ -50,10 +50,12 @@ When MCP tools are missing or not working, check these in order:
 
 Run the inspect command above. Both `blackbird-wp` and `inkwren` should appear with correct env vars.
 
-If inkwren is missing, re-add it:
+If inkwren is missing, re-add it. `~/.claude.json` does NOT expand `${VAR}`, so inline the **literal** token (pull it from `.env` into a shell var first, and redact when echoing). The env var the server reads is `INKWREN_AUTH_TOKEN`:
 ```bash
-claude mcp add-json inkwren --scope local '{"type":"stdio","command":"npx","args":["@inkwren/mcp-server"],"env":{"INKWREN_API_URL":"https://app.inkwren.com/api","INKWREN_AUTH_TOKEN":"${INKWREN_AUTH_TOKEN_BLACKBIRD}"}}'
+TOK=$(grep '^INKWREN_AUTH_TOKEN_BLACKBIRD=' .env | cut -d= -f2- | tr -d '" ')
+claude mcp add-json inkwren --scope local "{\"type\":\"stdio\",\"command\":\"npx\",\"args\":[\"@inkwren/mcp-server\"],\"env\":{\"INKWREN_API_URL\":\"https://app.inkwren.com/api\",\"INKWREN_AUTH_TOKEN\":\"$TOK\"}}"
 ```
+Because the token is stored literally, **no shell export is needed** for inkwren — it does not depend on `${VAR}` reaching the Claude Code process.
 
 ### Step 2: Verify env vars are exported
 
@@ -93,6 +95,30 @@ npm view @inkwren/mcp-server version
 | WordPress tools not appearing | Run `claude mcp add blackbird-wp --scope local -- npx -y @instawp/mcp-wp` |
 | Stale npm package | Run `npx @inkwren/mcp-server@latest` or clear npx cache |
 | `.mcp.json` not picked up | Claude Code ignores `.mcp.json` when project exists in `~/.claude.json` — use `claude mcp add-json` instead |
+
+## Setting Up Inkwren MCP for Another Project (Bramble, etc.)
+
+Other Claude assistants can get the same Inkwren read access. **Bramble** (the publishing repo, `~/Dropbox/dev/publishing/`) was set up this way on 2026-06-19.
+
+Method (mirrors the pub-tools setup — literal token, no `.mcp.json`, no shell export):
+
+1. Confirm the target project already has the Blackbird key in its `.env` as `INKWREN_AUTH_TOKEN_BLACKBIRD` (publishing already did). If not, copy it from pub-tools `.env`.
+2. Register the server under that project's entry in `~/.claude.json` via `claude mcp add-json`, run **from the target project directory** (`--scope local` keys off the cwd). Inline the literal token; redact on echo:
+   ```bash
+   cd /Users/jamieferguson/Dropbox/dev/publishing
+   TOK=$(grep '^INKWREN_AUTH_TOKEN_BLACKBIRD=' .env | cut -d= -f2- | tr -d '" ')
+   claude mcp add-json inkwren --scope local "{\"type\":\"stdio\",\"command\":\"npx\",\"args\":[\"@inkwren/mcp-server\"],\"env\":{\"INKWREN_API_URL\":\"https://app.inkwren.com/api\",\"INKWREN_AUTH_TOKEN\":\"$TOK\"}}" 2>&1 | sed "s/$TOK/<redacted>/g"
+   ```
+3. Verify it landed (redact secrets):
+   ```bash
+   python3 -c "import json,os,copy; d=json.load(open(os.path.expanduser('~/.claude.json'))); ms=copy.deepcopy(d['projects']['/Users/jamieferguson/Dropbox/dev/publishing'].get('mcpServers',{})); [s['env'].__setitem__(k,'<redacted>') for s in ms.values() for k in s.get('env',{}) if 'TOKEN' in k]; print(json.dumps(ms,indent=2))"
+   ```
+4. **A fresh session** in that project picks it up. Confirm with `inkwren_list_workspaces` (returns Blackbird Publishing).
+5. Document the capability in that project's `CLAUDE.md` so its sessions know they have it (done for Bramble).
+
+**Why `.mcp.json` won't work here:** the publishing project already has an entry in `~/.claude.json`, so Claude Code ignores a project-root `.mcp.json` — same gotcha as pub-tools. Use `claude mcp add-json`.
+
+**Workspace scope:** the key is workspace-scoped (one key = one workspace), and only **Blackbird Publishing** currently exists. To give a coordinator access to other workspaces (Borogrove, personal writing), create those workspaces + keys in Inkwren first, then add each as its own env/server.
 
 ## Adding a New MCP Server
 
