@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__blackbird-wp__list_posts",
+      "mcp__blackbird-wp__get_post",
+      "mcp__blackbird-wp__list_media",
+      "mcp__blackbird-wp__list_categories",
+      "Bash(python3 scripts/extract-vellum-author.py:*)"
+    ]
+  }
+}
