@@ -110,6 +110,8 @@ When multiple MCP servers are connected:
 | Server | Namespace | Examples |
 |---|---|---|
 | WordPress (Blackbird) | `mcp__blackbird-wp__` | `mcp__blackbird-wp__create_post` |
+| WordPress (Borogrove) | `mcp__borogrove-wp__` | `mcp__borogrove-wp__update_page` |
+| WordPress (jamieferguson.com) | `mcp__jamie-wp__` | `mcp__jamie-wp__update_page` |
 | Inkwren | `inkwren_` | `inkwren_search_publications` |
 | Buffer (future) | `buffer_` | `buffer_schedule_post` |
 
@@ -123,11 +125,13 @@ When using Inkwren MCP data to drive WordPress actions, use the correct workspac
 
 | Inkwren Workspace | WordPress Site | Status |
 |---|---|---|
-| Blackbird Publishing | blackbirdpublishing.com | Active target |
-| Borogrove Press | TBD | Future |
-| Jamie (personal writing) | TBD | Future |
+| Blackbird Publishing | blackbirdpublishing.com | Active |
+| Borogrove Press | borogrovepress.com | Active (REST needs `?rest_route=` — see WordPress Content Rules) |
+| Jamie (personal writing) | jamieferguson.com | Active |
 
-**MCP wiring:** All three Inkwren workspaces are wired into MCP for Rookwood as separate server instances — `inkwren` (Blackbird), `inkwren-borogrove`, and `inkwren-jamie` (personal writing) — so Rookwood can pull catalog data for any of Jamie's books/stories regardless of imprint (e.g. drafting a Borogrove post, or a story of Jamie's published by a third party, tracked in the Jamie workspace). Tools namespace by server: `mcp__inkwren__…`, `mcp__inkwren-borogrove__…`, `mcp__inkwren-jamie__…`. Keys live in `.env` (`INKWREN_AUTH_TOKEN_BLACKBIRD` / `_BOROGROVE` / `_JAMIE`); each server reads its literal token from `~/.claude.json` per the `/mcp` skill. **Note:** WordPress *actions* still need per-site credentials — only blackbirdpublishing.com has a `claude` Application Password today.
+**Inkwren MCP wiring:** All three Inkwren workspaces are wired into MCP for Rookwood as separate server instances — `inkwren` (Blackbird), `inkwren-borogrove`, and `inkwren-jamie` (personal writing) — so Rookwood can pull catalog data for any of Jamie's books/stories regardless of imprint (e.g. drafting a Borogrove post, or a story of Jamie's published by a third party, tracked in the Jamie workspace). Tools namespace by server: `mcp__inkwren__…`, `mcp__inkwren-borogrove__…`, `mcp__inkwren-jamie__…`. Keys live in `.env` (`INKWREN_AUTH_TOKEN_BLACKBIRD` / `_BOROGROVE` / `_JAMIE`); each reads its literal token from `~/.claude.json` per the `/mcp` skill.
+
+**WordPress access:** Rookwood has a `claude` **Editor** user on all three sites (can create/update posts *and* pages). WP MCP servers: `blackbird-wp`, `borogrove-wp`, `jamie-wp`. Per-site app passwords in `.env`: `CLAUDE_BLACKBIRD_WP_PASSWORD` / `CLAUDE_BOROGROVE_WP_PASSWORD` / `CLAUDE_JAMIE_WP_PASSWORD`. (`borogrove-wp` MCP connectivity is unverified pending a fresh session — see the rest_route note; REST already works via that form.)
 
 ## WordPress Integration
 
@@ -161,6 +165,8 @@ Unicode curly quotes get flattened to straight quotes by the MCP/REST pipeline. 
 **Featured image upload:** MCP `create_media` only accepts URLs. For local files, use direct REST API: `POST /wp-json/wp/v2/media` with binary data and `CLAUDE_BLACKBIRD_WP_PASSWORD` from `.env`. Then attach via MCP `update_post` with `featured_media`.
 
 **Media folders:** `wpmf-category` taxonomy is not API-accessible (403). Jamie assigns folders manually after upload.
+
+**Per-site REST quirk — borogrovepress.com forces trailing slashes.** The pretty-permalink REST path (`/wp-json/wp/v2/...`) 301-redirects to a trailing-slash URL that does **not** route to the API (returns HTML), so it breaks REST calls. Use the **`?rest_route=` form** instead: `https://borogrovepress.com/?rest_route=/wp/v2/posts` (append other params with `&`). blackbirdpublishing.com and jamieferguson.com use the normal `/wp-json/` path. (The `borogrove-wp` MCP server points at the site root; whether `@instawp/mcp-wp` handles the redirect is unverified — if MCP calls fail, fall back to REST via `?rest_route=`.)
 
 ### Linear Project Tracking
 
