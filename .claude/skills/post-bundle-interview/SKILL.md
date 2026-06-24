@@ -116,6 +116,18 @@ Notes:
 - `author_tag` is the display name; the engine finds it or creates it (search is case-insensitive). Don't pre-create tags.
 - The engine sets `featured_media` to the banner and places the cover (resized to `cover_width_px`) at the top.
 
+### Joint / parallel interviews (two+ people)
+
+Some interviews are a **parallel format** — each question answered by multiple people in turn (`**Jamie:**` then `**DeAnna:**`), often with a `---` divider between questions. The engine handles this automatically: it's heading-driven, keeps every answer under each question, and renders the inter-question `---` as horizontal rules. The "About" heading text is taken from the source (e.g. "About the Editors"), and the Find section supports multiple labeled links.
+
+For a post with **more than one author tag** (e.g. a joint interview), add `extra_tag_ids` to the post entry — these are merged with the sidecar's `author_tag` and the series tag:
+
+```json
+{"sidecar": ".../monster_road_trip/post.yaml", "extra_tag_ids": [235]}
+```
+
+(Monster Road Trip, post 5745, was built this way: `author_tag` "Jamie Ferguson" + `extra_tag_ids: [235]` for DeAnna Knippling.)
+
 ## Step 4: Dry-run, then create
 
 ```bash
