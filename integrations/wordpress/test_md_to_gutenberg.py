@@ -14,7 +14,8 @@ import sys
 import tempfile
 
 from md_to_gutenberg import (inline, verify, list_block,
-                             parse_sidecar_text, read_sidecar, resolve_post)
+                             parse_sidecar_text, read_sidecar, resolve_post,
+                             parse_interview, assemble_interview, SEP_MARKER)
 
 CASES = [
     # (description, markdown input, expected HTML output)
@@ -157,8 +158,92 @@ excerpt: "A short excerpt."
             failures += 1
             print(f"FAIL (resolve): {desc} — expected {expected!r}, got {got!r}")
 
+    # --- parallel / joint-editor format (--- dividers between questions) ---
+    PARALLEL = '''# Interview: A & B on Thing
+
+[Featured image: x.png]
+Alt text: "x"
+
+Intro paragraph here.
+
+---
+
+## The Interview
+
+**Q1?**
+
+**A:** answer one.
+
+**B:** answer two.
+
+---
+
+**Q2?**
+
+**A:** answer three.
+
+**B:** answer four.
+
+---
+
+## About the Editors
+
+**A** is a writer.
+
+**B** is also a writer.
+
+## Find A & B
+
+- A: [a.com](https://a.com/)
+- B: [b.com](https://b.com/)
+
+---
+
+[Bundle montage image: media library item 5698]
+Alt text: "bundle"
+
+*Thing* is available now.
+'''
+    parallel_checks = []
+    with tempfile.TemporaryDirectory() as d:
+        p = os.path.join(d, "interview_post.md")
+        open(p, "w", encoding="utf-8").write(PARALLEL)
+        pi = parse_interview(p)
+        parallel_checks = [
+            ("intro parsed", pi["intro"], ["Intro paragraph here."]),
+            ("about heading captured (Editors)", pi["about_heading"], "About the Editors"),
+            ("multi-name find", pi["find_name"], "A & B"),
+            ("two bios", len(pi["bio"]), 2),
+            ("two find links", len(pi["find"]), 2),
+            ("one divider between the 2 questions (trailing trimmed)",
+             pi["qa"].count(SEP_MARKER), 1),
+            ("qa does not start/end with a divider",
+             pi["qa"][0] != SEP_MARKER and pi["qa"][-1] != SEP_MARKER, True),
+            ("both editor answers kept under Q1",
+             pi["qa"][1].startswith("**A:**") and pi["qa"][2].startswith("**B:**"), True),
+        ]
+        for desc, got, expected in parallel_checks:
+            if got != expected:
+                failures += 1
+                print(f"FAIL (parallel): {desc} — expected {expected!r}, got {got!r}")
+        # assemble: divider renders as a separator; About heading is "Editors"
+        html = assemble_interview(pi, 1, "u", "a", 5698, "bu", "ba")
+        asm_checks = [
+            ("About the Editors heading rendered",
+             '<h2 class="wp-block-heading">About the Editors</h2>' in html),
+            ("separator between questions rendered",
+             html.count('wp:separator') >= 3),  # before interview, between Qs, before CTA
+            ("editor label bolded", "<strong>A:</strong> answer one." in html),
+            ("no separator sentinel leaked into output", SEP_MARKER not in html),
+        ]
+        parallel_checks += asm_checks
+        for desc, ok in asm_checks:
+            if not ok:
+                failures += 1
+                print(f"FAIL (parallel/assemble): {desc}")
+
     total = (len(CASES) + len(verify_cases) + 1
-             + len(sidecar_checks) + len(resolve_checks))
+             + len(sidecar_checks) + len(resolve_checks) + len(parallel_checks))
     if failures:
         print(f"\n{failures} of {total} checks FAILED")
         return 1

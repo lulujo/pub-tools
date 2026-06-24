@@ -151,11 +151,9 @@ def list_block(items):
 # --------------------------------------------------------------------------
 
 _HR = re.compile(r'(?m)^---\s*$')
-_H_INTERVIEW = re.compile(r'(?m)^##\s+The Interview\s*$')
-_H_ABOUT = re.compile(r'(?m)^##\s+About the Author\s*$')
-_H_FIND = re.compile(r'(?m)^##\s+Find\b.*$')          # accepts multi-word names
-_FIND_NAME = re.compile(r'(?m)^##\s+Find\s+(.+?)\s*$')
+_H2 = re.compile(r'(?m)^##\s+(.+?)\s*$')
 _META_LINE = re.compile(r'^\[|^Alt text:')
+SEP_MARKER = "\x00SEP\x00"   # an in-interview '---' -> render as a wp:separator
 
 
 def _clean_block(block):
@@ -165,42 +163,69 @@ def _clean_block(block):
     return ' '.join(lines).strip()
 
 
+def _blocks(text):
+    """Blank-line-separated, trimmed, non-empty blocks."""
+    return [b.strip() for b in re.split(r'\n\s*\n', text.strip()) if b.strip()]
+
+
 def parse_interview(path):
-    """Parse a bundle-interview markdown file into its component pieces."""
+    """Parse a bundle-interview markdown file into its component pieces.
+
+    Heading-driven, not separator-count driven: intro = everything before the
+    first '---'; bundle CTA = everything after the last '---'; the body between
+    is sliced by its H2 headings (## The Interview / ## About... / ## Find...).
+    A '---' line *inside* the interview becomes a separator — that's how the
+    parallel/joint-editor format divides each question. Works for both the
+    single-author format (3 separators) and the parallel format (one per Q)."""
     raw = open(path, encoding="utf-8").read()
-    parts = _HR.split(raw)
-    if len(parts) < 4:
-        raise ValueError(f"{path}: expected 3 '---' separators, found {len(parts) - 1}")
-    sec_a, sec_b, sec_c, sec_d = parts[0], parts[1], parts[2], parts[3]
+    hrs = list(_HR.finditer(raw))
+    if not hrs:
+        raise ValueError(f"{path}: no '---' separators found")
+    intro_src = raw[:hrs[0].start()]
+    cta_src = raw[hrs[-1].end():]
+    middle = raw[hrs[0].end():hrs[-1].start()]
 
     intro = []
-    for block in re.split(r'\n\s*\n', sec_a.strip()):
-        block = block.strip()
-        if not block or block.startswith('# '):
+    for block in _blocks(intro_src):
+        if block.startswith('# '):
             continue
         cleaned = _clean_block(block)
         if cleaned:
             intro.append(cleaned)
 
-    body = _H_INTERVIEW.sub('', sec_b).strip()
-    qa = [b.strip() for b in re.split(r'\n\s*\n', body) if b.strip()]
+    # slice the middle by its H2 headings
+    heads = list(_H2.finditer(middle))
+    interview_src = about_src = find_src = ""
+    about_heading = "About the Author"
+    find_name = ""
+    for i, h in enumerate(heads):
+        title = h.group(1).strip()
+        end = heads[i + 1].start() if i + 1 < len(heads) else len(middle)
+        seg = middle[h.end():end]
+        low = title.lower()
+        if low.startswith("the interview"):
+            interview_src = seg
+        elif low.startswith("about"):
+            about_src, about_heading = seg, title
+        elif low.startswith("find"):
+            find_src, find_name = seg, title[4:].strip()
 
-    about_and_find = _H_FIND.split(sec_c)
-    about = _H_ABOUT.sub('', about_and_find[0]).strip()
-    bio = [' '.join(ln.strip() for ln in b.splitlines())
-           for b in re.split(r'\n\s*\n', about) if b.strip()]
-    find_md = about_and_find[1].strip() if len(about_and_find) > 1 else ""
-    find = [ln.strip()[2:].strip() for ln in find_md.splitlines()
+    qa = []
+    for block in _blocks(interview_src):
+        qa.append(SEP_MARKER if re.fullmatch(r'-{3,}', block) else block)
+    while qa and qa[0] == SEP_MARKER:
+        qa.pop(0)
+    while qa and qa[-1] == SEP_MARKER:
+        qa.pop()
+
+    bio = [_clean_block(b) for b in _blocks(about_src)]
+    find = [ln.strip()[2:].strip() for ln in find_src.splitlines()
             if ln.strip().startswith('- ')]
-    name_match = _FIND_NAME.search(sec_c)
-    find_name = name_match.group(1) if name_match else ""
-
-    cta = [' '.join(x.strip() for x in b.splitlines())
-           for b in re.split(r'\n\s*\n', sec_d.strip()) if b.strip()]
-    cta = [c for c in cta if not _META_LINE.match(c)]
+    cta = [c for c in (_clean_block(b) for b in _blocks(cta_src))
+           if c and not _META_LINE.match(c)]
 
     return {"intro": intro, "qa": qa, "bio": bio, "find": find,
-            "find_name": find_name, "cta": cta}
+            "find_name": find_name, "about_heading": about_heading, "cta": cta}
 
 
 def assemble_interview(parsed, cover_id, cover_url, cover_alt,
@@ -209,8 +234,9 @@ def assemble_interview(parsed, cover_id, cover_url, cover_alt,
     blocks = [cover_block(cover_id, cover_url, cover_alt, width_px)]
     blocks += [paragraph(t) for t in parsed["intro"]]
     blocks += [SEPARATOR, heading("The Interview")]
-    blocks += [paragraph(t) for t in parsed["qa"]]
-    blocks += [SEPARATOR, heading("About the Author")]
+    for item in parsed["qa"]:
+        blocks.append(SEPARATOR if item == SEP_MARKER else paragraph(item))
+    blocks += [SEPARATOR, heading(parsed.get("about_heading", "About the Author"))]
     blocks += [paragraph(t) for t in parsed["bio"]]
     if parsed["find"]:
         blocks += [heading(f"Find {parsed['find_name']}"), list_block(parsed["find"])]
@@ -459,10 +485,14 @@ def process_post(wp, post, defaults, dry_run):
         report["cover_id"] = cover_id
         return report
 
+    # tags: series tag + this post's author tag + any extra author tags
+    # (e.g. a joint interview with two editors). De-duped, order preserved.
+    tag_ids = [defaults["series_tag"], tag_id] + list(post.get("extra_tag_ids", []))
+    tag_ids = list(dict.fromkeys(tag_ids))
     payload = {
         "title": post["title"], "slug": post["slug"], "status": "draft",
         "content": content, "categories": [defaults["category"]],
-        "tags": [defaults["series_tag"], tag_id], "author": defaults["author"],
+        "tags": tag_ids, "author": defaults["author"],
         "featured_media": banner_id,
     }
     if post.get("excerpt"):
