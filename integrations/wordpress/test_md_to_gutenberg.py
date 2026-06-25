@@ -15,7 +15,24 @@ import tempfile
 
 from md_to_gutenberg import (inline, verify, list_block,
                              parse_sidecar_text, read_sidecar, resolve_post,
-                             parse_interview, assemble_interview, SEP_MARKER)
+                             parse_interview, assemble_interview, process_post)
+
+
+def _parse_text(md):
+    """Helper: write markdown to a temp file and parse it."""
+    with tempfile.TemporaryDirectory() as d:
+        p = os.path.join(d, "interview_post.md")
+        open(p, "w", encoding="utf-8").write(md)
+        return parse_interview(p)
+
+
+def _headings(body):
+    return [t for k, t in ((i[0], i[1] if len(i) > 1 else None) for i in body)
+            if k == "heading"]
+
+
+def _kinds(body):
+    return [i[0] for i in body]
 
 CASES = [
     # (description, markdown input, expected HTML output)
@@ -39,6 +56,10 @@ CASES = [
      "à la Wells", "à la Wells"),
     ("simple italics",
      "in *whack* instead", "in <em>whack</em> instead"),
+    ("underscore italics",
+     "read _Monster Road Trip_ now", "read <em>Monster Road Trip</em> now"),
+    ("snake_case is NOT italicized",
+     "the monster_road_trip folder", "the monster_road_trip folder"),
     ("bold wraps the whole question",
      "**Why this?**", "<strong>Why this?</strong>"),
     # The two that bit us hardest:
@@ -158,92 +179,93 @@ excerpt: "A short excerpt."
             failures += 1
             print(f"FAIL (resolve): {desc} — expected {expected!r}, got {got!r}")
 
-    # --- parallel / joint-editor format (--- dividers between questions) ---
-    PARALLEL = '''# Interview: A & B on Thing
+    # --- format-agnostic body parsing (3 real formats) ---
+    format_checks = []
 
-[Featured image: x.png]
-Alt text: "x"
+    # (1) single-author: one '## The Interview', '---' before About, Find list
+    SINGLE = ('# T\n\n[Featured image: x]\nAlt text: "x"\n\nIntro.\n\n---\n\n'
+              '## The Interview\n\n**Q?**\n\nAnswer.\n\n---\n\n'
+              '## About the Author\n\nBio para.\n\n## Find X\n\n- [x.com](https://x.com/)\n\n'
+              '---\n\n[Bundle montage image: 5698]\nAlt text: "b"\n\n*T* is available.\n')
+    s = _parse_text(SINGLE)
+    format_checks += [
+        ("single: intro", s["intro"], ["Intro."]),
+        ("single: headings in order", _headings(s["body"]),
+         ["The Interview", "About the Author", "Find X"]),
+        ("single: one internal separator (before About)",
+         _kinds(s["body"]).count("sep"), 1),
+        ("single: Find rendered as a list", any(k == "list" for k in _kinds(s["body"])), True),
+        ("single: cta", s["cta"], ["*T* is available."]),
+    ]
 
-Intro paragraph here.
+    # (2) parallel/joint: '---' between questions, two editors per Q
+    PARALLEL = ('# T\n\nIntro.\n\n---\n\n## The Interview\n\n**Q1?**\n\n'
+                '**A:** one.\n\n**B:** two.\n\n---\n\n**Q2?**\n\n**A:** three.\n\n**B:** four.\n\n'
+                '---\n\n## About the Editors\n\n**A** writes.\n\n**B** writes.\n\n---\n\nDone.\n')
+    pp = _parse_text(PARALLEL)
+    html = assemble_interview(pp, 1, "u", "a", 5698, "bu", "ba")
+    format_checks += [
+        ("parallel: about heading captured", "About the Editors" in _headings(pp["body"]), True),
+        ("parallel: 2 internal separators (between Qs + before About)",
+         _kinds(pp["body"]).count("sep"), 2),
+        ("parallel: both editor answers kept",
+         "<strong>A:</strong> one." in html and "<strong>B:</strong> two." in html, True),
+        ("parallel: About the Editors heading rendered",
+         '<h2 class="wp-block-heading">About the Editors</h2>' in html, True),
+    ]
 
----
+    # (3) compiled group: a '## <name>' section per contributor + bulleted About
+    COMPILED = ('# T\n\nIntro.\n\n---\n\n## Mark — "S"\n\n**Q?**\n\nMark ans.\n\n---\n\n'
+                '## Dee — "P"\n\n**Q?**\n\nDee ans.\n\n---\n\n## And, asked of all…\n\n'
+                '**Q?**\n\n**Mark:** m.\n\n**Dee:** d.\n\n---\n\n## About the Contributors\n\n'
+                '- **Mark** writes. [m.com](https://m.com/)\n- **Dee** writes. [d.com](https://d.com/)\n\n'
+                '---\n\n[Bundle montage image: 5698]\nAlt text: "b"\n\n*T* is available.\n')
+    cp = _parse_text(COMPILED)
+    chtml = assemble_interview(cp, 1, "u", "a", 5698, "bu", "ba")
+    format_checks += [
+        ("compiled: per-contributor + shared headings (raw text)",
+         _headings(cp["body"]),
+         ['Mark — "S"', 'Dee — "P"', 'And, asked of all…', 'About the Contributors']),
+        ("compiled: bulleted About becomes a list",
+         any(k == "list" for k in _kinds(cp["body"])), True),
+        ("compiled: contributor heading em-dash/quotes encoded in output",
+         '<h2 class="wp-block-heading">Mark&mdash;&ldquo;S&rdquo;</h2>' in chtml, True),
+        ("compiled: shared-question names bolded",
+         "<strong>Mark:</strong> m." in chtml and "<strong>Dee:</strong> d." in chtml, True),
+        ("compiled: About list has both bios with links",
+         chtml.count('<li>') == 2 and 'href="https://m.com/"' in chtml, True),
+    ]
 
-## The Interview
+    for desc, got, expected in format_checks:
+        if got != expected:
+            failures += 1
+            print(f"FAIL (format): {desc} — expected {expected!r}, got {got!r}")
 
-**Q1?**
-
-**A:** answer one.
-
-**B:** answer two.
-
----
-
-**Q2?**
-
-**A:** answer three.
-
-**B:** answer four.
-
----
-
-## About the Editors
-
-**A** is a writer.
-
-**B** is also a writer.
-
-## Find A & B
-
-- A: [a.com](https://a.com/)
-- B: [b.com](https://b.com/)
-
----
-
-[Bundle montage image: media library item 5698]
-Alt text: "bundle"
-
-*Thing* is available now.
-'''
-    parallel_checks = []
+    # --- process_post dry-run (exercises the CLI path, not just parse/assemble;
+    #     this is the layer where a parser-shape change can break the report) ---
+    proc_checks = []
     with tempfile.TemporaryDirectory() as d:
-        p = os.path.join(d, "interview_post.md")
-        open(p, "w", encoding="utf-8").write(PARALLEL)
-        pi = parse_interview(p)
-        parallel_checks = [
-            ("intro parsed", pi["intro"], ["Intro paragraph here."]),
-            ("about heading captured (Editors)", pi["about_heading"], "About the Editors"),
-            ("multi-name find", pi["find_name"], "A & B"),
-            ("two bios", len(pi["bio"]), 2),
-            ("two find links", len(pi["find"]), 2),
-            ("one divider between the 2 questions (trailing trimmed)",
-             pi["qa"].count(SEP_MARKER), 1),
-            ("qa does not start/end with a divider",
-             pi["qa"][0] != SEP_MARKER and pi["qa"][-1] != SEP_MARKER, True),
-            ("both editor answers kept under Q1",
-             pi["qa"][1].startswith("**A:**") and pi["qa"][2].startswith("**B:**"), True),
+        mp = os.path.join(d, "interview_post.md")
+        open(mp, "w", encoding="utf-8").write(SINGLE)
+        defaults = {"category": 4, "author": 2, "series_tag": 393,
+                    "bundle_banner_id": 5698, "bundle_banner_url": "u",
+                    "bundle_banner_alt": "b", "cover_width_px": 300}
+        post = {"interview_md": mp, "title": "T", "slug": "t", "banner": "b.png",
+                "banner_alt": "ba", "cover": "c.jpg", "cover_alt": "ca",
+                "author_tag": "X"}
+        rep = process_post(None, post, defaults, dry_run=True)  # wp=None ok in dry-run
+        proc_checks = [
+            ("process_post dry-run reports no problems", rep.get("problems"), []),
+            ("process_post dry-run produced content", bool(rep.get("content")), True),
+            ("process_post dry-run counted body blocks", rep.get("blocks", 0) > 0, True),
         ]
-        for desc, got, expected in parallel_checks:
+        for desc, got, expected in proc_checks:
             if got != expected:
                 failures += 1
-                print(f"FAIL (parallel): {desc} — expected {expected!r}, got {got!r}")
-        # assemble: divider renders as a separator; About heading is "Editors"
-        html = assemble_interview(pi, 1, "u", "a", 5698, "bu", "ba")
-        asm_checks = [
-            ("About the Editors heading rendered",
-             '<h2 class="wp-block-heading">About the Editors</h2>' in html),
-            ("separator between questions rendered",
-             html.count('wp:separator') >= 3),  # before interview, between Qs, before CTA
-            ("editor label bolded", "<strong>A:</strong> answer one." in html),
-            ("no separator sentinel leaked into output", SEP_MARKER not in html),
-        ]
-        parallel_checks += asm_checks
-        for desc, ok in asm_checks:
-            if not ok:
-                failures += 1
-                print(f"FAIL (parallel/assemble): {desc}")
+                print(f"FAIL (process_post): {desc} — expected {expected!r}, got {got!r}")
 
-    total = (len(CASES) + len(verify_cases) + 1
-             + len(sidecar_checks) + len(resolve_checks) + len(parallel_checks))
+    total = (len(CASES) + len(verify_cases) + 1 + len(sidecar_checks)
+             + len(resolve_checks) + len(format_checks) + len(proc_checks))
     if failures:
         print(f"\n{failures} of {total} checks FAILED")
         return 1

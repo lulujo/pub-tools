@@ -83,6 +83,9 @@ _EM_DASH = re.compile(r'\s*—\s*')          # strip surrounding spaces
 _MD_LINK = re.compile(r'\[([^\]]+)\]\(([^)]+)\)')
 _MD_BOLD = re.compile(r'\*\*(.+?)\*\*')         # non-greedy: allows inner *italics*
 _MD_ITALIC = re.compile(r'\*([^*]+)\*')
+# Underscore italics, word-bounded so snake_case (monster_road_trip) and URLs
+# are left alone but `_Monster Road Trip_` italicizes.
+_MD_ITALIC_US = re.compile(r'(?<![\w*])_([^_]+?)_(?![\w*])')
 
 
 def inline(text):
@@ -98,6 +101,7 @@ def inline(text):
     t = _MD_LINK.sub(r'<a href="\2" target="_blank" rel="noopener">\1</a>', t)
     t = _MD_BOLD.sub(r'<strong>\1</strong>', t)
     t = _MD_ITALIC.sub(r'<em>\1</em>', t)
+    t = _MD_ITALIC_US.sub(r'<em>\1</em>', t)
     return t
 
 
@@ -151,9 +155,8 @@ def list_block(items):
 # --------------------------------------------------------------------------
 
 _HR = re.compile(r'(?m)^---\s*$')
-_H2 = re.compile(r'(?m)^##\s+(.+?)\s*$')
 _META_LINE = re.compile(r'^\[|^Alt text:')
-SEP_MARKER = "\x00SEP\x00"   # an in-interview '---' -> render as a wp:separator
+_BULLET = re.compile(r'^\s*-\s+')
 
 
 def _clean_block(block):
@@ -168,79 +171,79 @@ def _blocks(text):
     return [b.strip() for b in re.split(r'\n\s*\n', text.strip()) if b.strip()]
 
 
-def parse_interview(path):
-    """Parse a bundle-interview markdown file into its component pieces.
-
-    Heading-driven, not separator-count driven: intro = everything before the
-    first '---'; bundle CTA = everything after the last '---'; the body between
-    is sliced by its H2 headings (## The Interview / ## About... / ## Find...).
-    A '---' line *inside* the interview becomes a separator — that's how the
-    parallel/joint-editor format divides each question. Works for both the
-    single-author format (3 separators) and the parallel format (one per Q)."""
-    raw = open(path, encoding="utf-8").read()
-    hrs = list(_HR.finditer(raw))
-    if not hrs:
-        raise ValueError(f"{path}: no '---' separators found")
-    intro_src = raw[:hrs[0].start()]
-    cta_src = raw[hrs[-1].end():]
-    middle = raw[hrs[0].end():hrs[-1].start()]
-
-    intro = []
-    for block in _blocks(intro_src):
+def _paragraphs(src):
+    """Intro/CTA paragraphs: drop the title and image-meta-only blocks."""
+    out = []
+    for block in _blocks(src):
         if block.startswith('# '):
             continue
         cleaned = _clean_block(block)
         if cleaned:
-            intro.append(cleaned)
+            out.append(cleaned)
+    return out
 
-    # slice the middle by its H2 headings
-    heads = list(_H2.finditer(middle))
-    interview_src = about_src = find_src = ""
-    about_heading = "About the Author"
-    find_name = ""
-    for i, h in enumerate(heads):
-        title = h.group(1).strip()
-        end = heads[i + 1].start() if i + 1 < len(heads) else len(middle)
-        seg = middle[h.end():end]
-        low = title.lower()
-        if low.startswith("the interview"):
-            interview_src = seg
-        elif low.startswith("about"):
-            about_src, about_heading = seg, title
-        elif low.startswith("find"):
-            find_src, find_name = seg, title[4:].strip()
 
-    qa = []
-    for block in _blocks(interview_src):
-        qa.append(SEP_MARKER if re.fullmatch(r'-{3,}', block) else block)
-    while qa and qa[0] == SEP_MARKER:
-        qa.pop(0)
-    while qa and qa[-1] == SEP_MARKER:
-        qa.pop()
+def parse_interview(path):
+    """Parse a bundle-interview markdown file into intro / ordered body / CTA.
 
-    bio = [_clean_block(b) for b in _blocks(about_src)]
-    find = [ln.strip()[2:].strip() for ln in find_src.splitlines()
-            if ln.strip().startswith('- ')]
-    cta = [c for c in (_clean_block(b) for b in _blocks(cta_src))
-           if c and not _META_LINE.match(c)]
+    Format-agnostic. intro = everything before the first '---'; bundle CTA =
+    everything after the last '---'; the body in between is captured as an
+    ORDERED list of items rendered in document order — each H2 becomes a
+    heading, each '---' a separator, each bulleted block a list, everything
+    else a paragraph. This handles every interview shape without special-casing
+    heading names: single-author (one '## The Interview'), parallel/joint (a
+    '---' between each question), and compiled group posts (a '## <name>'
+    section per contributor). Body item = ('heading',text) | ('sep',) |
+    ('list',[items]) | ('para',text)."""
+    raw = open(path, encoding="utf-8").read()
+    hrs = list(_HR.finditer(raw))
+    if not hrs:
+        raise ValueError(f"{path}: no '---' separators found")
+    intro = _paragraphs(raw[:hrs[0].start()])
+    cta = _paragraphs(raw[hrs[-1].end():])
+    middle = raw[hrs[0].end():hrs[-1].start()]
 
-    return {"intro": intro, "qa": qa, "bio": bio, "find": find,
-            "find_name": find_name, "about_heading": about_heading, "cta": cta}
+    body = []
+    for block in _blocks(middle):
+        if re.fullmatch(r'-{3,}', block):
+            body.append(("sep",))
+        elif block.startswith('## '):
+            lines = block.split('\n')
+            body.append(("heading", lines[0][3:].strip()))
+            rest = _clean_block('\n'.join(lines[1:]))
+            if rest:
+                body.append(("para", rest))
+        elif block.splitlines() and all(_BULLET.match(ln) for ln in block.splitlines()):
+            body.append(("list", [_BULLET.sub('', ln, count=1).strip()
+                                   for ln in block.splitlines()]))
+        else:
+            body.append(("para", _clean_block(block)))
+
+    return {"intro": intro, "body": body, "cta": cta}
 
 
 def assemble_interview(parsed, cover_id, cover_url, cover_alt,
                        bundle_id, bundle_url, bundle_alt, width_px=300):
-    """Build the full Gutenberg content string for an interview post."""
+    """Build the full Gutenberg content string for an interview post.
+
+    Layout: cover, intro, separator, <body rendered in order>, separator,
+    bundle banner, CTA. The two separators are the intro|body and body|CTA
+    boundaries (the first and last '---' in the source)."""
     blocks = [cover_block(cover_id, cover_url, cover_alt, width_px)]
     blocks += [paragraph(t) for t in parsed["intro"]]
-    blocks += [SEPARATOR, heading("The Interview")]
-    for item in parsed["qa"]:
-        blocks.append(SEPARATOR if item == SEP_MARKER else paragraph(item))
-    blocks += [SEPARATOR, heading(parsed.get("about_heading", "About the Author"))]
-    blocks += [paragraph(t) for t in parsed["bio"]]
-    if parsed["find"]:
-        blocks += [heading(f"Find {parsed['find_name']}"), list_block(parsed["find"])]
-    blocks += [SEPARATOR, image_block(bundle_id, bundle_url, bundle_alt)]
+    blocks.append(SEPARATOR)
+    for item in parsed["body"]:
+        kind = item[0]
+        if kind == "heading":
+            blocks.append(heading(item[1]))
+        elif kind == "sep":
+            blocks.append(SEPARATOR)
+        elif kind == "list":
+            blocks.append(list_block(item[1]))
+        else:
+            blocks.append(paragraph(item[1]))
+    blocks.append(SEPARATOR)
+    blocks.append(image_block(bundle_id, bundle_url, bundle_alt))
     blocks += [paragraph(t) for t in parsed["cta"]]
     return "\n\n".join(blocks)
 
@@ -443,11 +446,11 @@ def process_post(wp, post, defaults, dry_run):
     missing = [k for k in _REQUIRED if not post.get(k)]
     if missing:
         return {"title": post.get("title", "?"), "slug": post.get("slug", "?"),
-                "qa_blocks": 0, "created": False,
+                "blocks": 0, "created": False,
                 "problems": [f"missing required field(s): {', '.join(missing)}"]}
     parsed = parse_interview(post["interview_md"])
     width = defaults.get("cover_width_px", 300)
-    report = {"title": post["title"], "slug": post["slug"], "qa_blocks": len(parsed["qa"])}
+    report = {"title": post["title"], "slug": post["slug"], "blocks": len(parsed["body"])}
 
     if dry_run:
         # Use placeholder ids/urls so the conversion + checks can run offline.
@@ -539,7 +542,7 @@ def main():
         sys.stderr.write(f"\n=== {post.get('title', '(unresolved sidecar)')} ===\n")
         report = process_post(wp, post, defaults, args.dry_run)
         if args.dry_run:
-            print(f"\n===== {report['title']} ({report['qa_blocks']} Q&A blocks) =====")
+            print(f"\n===== {report['title']} ({report['blocks']} body blocks) =====")
             if report["problems"]:
                 any_problem = True
                 print("  PROBLEMS:", "; ".join(report["problems"]))
