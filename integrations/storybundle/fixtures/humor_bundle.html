@@ -1,0 +1,572 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" xmlns:fb="http://ogp.me/ns/fb#" itemscope itemtype="http://schema.org/Product">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+
+
+<meta name="title" content="StoryBundle"/>
+<meta name="description" content="Pay what you like and get a bundle of awesome ebooks and more!"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Add the following three tags inside head -->
+<meta itemprop="name" content="StoryBundle"/>
+<meta itemprop="description" content="Pay what you like and get a bundle of awesome ebooks and more!" />
+<meta itemprop="image" content="https://storybundle.com/assets/logo/logo_thumb-5f0258d03dd702ff576e92785f9105527826fe1f4363b1f6bcfb40e14d56ece2.png" />
+<!-- Facebook Meta Tags -->
+<meta property="og:title" content="StoryBundle" />
+<meta property="og:url" content="http://storybundle.com" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="https://storybundle.com/assets/logo/logo_square-2af5c097d56a044531d8bf58325d4f9b52e70beecb804954664c5f56d3054662.png" />
+<meta property="og:description" content="Pay what you like and get a bundle of awesome ebooks and more!" />
+
+<title>StoryBundle</title>
+<link rel="shortcut icon" href="https://storybundle.com/assets/favicon-d3327288366635854ec63a10f116ad25c03912e03b5929006964004b22b58941.ico">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Goudy+Bookletter+1911" type="text/css" />
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Creepster' type='text/css'>
+<script src="https://use.typekit.net/did3atr.js"></script>
+<script>try{Typekit.load({ async: true });}catch(e){}</script>
+
+<link rel="stylesheet" media="all" href="/assets/application-22aa0e1ac628f20894d8f7e718d9762a59c5fbcb91c423debf3bf2c0488c4d48.css" debug="true" />
+<script src="/assets/application-b24ebc2f42eaf604742341d09747f51a4f1a3a95eca77fcfa9b02e048fbb6fb1.js" debug="true"></script>
+
+<meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="HJUpJf470MJafsfA2LyveRekbd8iGS3UNpcmgo+Qu9SWP4Skh4U0pHRc1ut9jIPp3AlmzA2jmLIYgcv5DbplxQ==" />
+
+
+
+<script src="https://www.paypal.com/sdk/js?client-id=AbjHTGxKqBZLsKg3W0H_9H6-sJgGEZzuVIEocdYDHNhsvD97Pl2RsPSJ0Ekzwj7wgabU_8fDDgk-F5Eb"></script>
+<script>
+  $(document).on('ready', function() {
+    if($('form.new_payment').length > 0) {
+      StoryBundle.BookBundle.initPayalButton();
+    }
+
+    if($('form#new_gift').length > 0) {
+      StoryBundle.Gift.initPayalButton();
+    }
+
+    if($('form.new_gift_card').length > 0) {
+      StoryBundle.GiftCard.initPayalButton();
+    }
+  });
+</script>
+
+
+<script type="text/javascript">
+
+ var _gaq = _gaq || [];
+ _gaq.push(['_setAccount', 'UA-28848230-1']);
+ _gaq.push(['_trackPageview']);
+
+ $(document).on('ready', function() {
+   var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+   ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+   var s = document.getElementsByTagName('script')[0];
+   s.parentNode.insertBefore(ga, s);
+ });
+
+</script>
+
+  </head>
+  <body>
+    <!-- Facebook plugins //-->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&status=0";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<!-- Twitter plugins //-->
+<script>
+  !function(d,s,id){
+    var js,fjs=d.getElementsByTagName(s)[0];
+    if(!d.getElementById(id)){
+      js=d.createElement(s);
+      js.id=id;js.src="//platform.twitter.com/widgets.js";
+      fjs.parentNode.insertBefore(js,fjs);
+    }
+  }(document,"script","twitter-wjs");
+</script>
+
+
+    <div class="header">
+      <div id="header">
+  <div id="header_right">
+    <ul class="inline">
+      <li class="text"><a href="https://storybundle.com/faq">What is StoryBundle?</a></li>
+      <li class="text"><a href="https://storybundle.com/email_subscriptions/new">Newsletter Signup</a></li>
+      <li class="text"><a href="https://storybundle.com/giftcard">Gift Card</a></li>
+        <li class="text"><a href="https://storybundle.com/login">Log In</a></li>
+    </ul>
+  </div>
+  <div id="header_inner">
+    <div class="header_logo"><a href="https://storybundle.com/"><img src="/assets/logo/logo_head-f16f8dd3886a9f5e5ac5fa94ea5fd7471ec4a921a1b9d3d97bfb76c8044d7eb2.png" /></a></div>
+    <ul class="social_panel inline">
+      <li><a href="http://www.facebook.com/StoryBundle"><img alt="facebook" src="/assets/icons/icon-facebook-601015af50cdc8e16c735bbc3a6b6c319e9f45fd1f86a7fd4050f2672692a01a.gif" /></a></li>
+      <li><a href="http://twitter.com/storybundle"><img alt="twitter" src="/assets/icons/icon-twitter-c74aae3f91bf34774736e46bb0dc99c2266efa08b78584c66c27685599bc84ef.gif" /></a></li>
+    </ul>
+  </div>
+</div>
+    </div>
+    <div class="section">
+      <div class="content_wrapper">
+        <div class="action_buttons">
+              <a class="bundle_429_button active" href="https://storybundle.com/humor"></a>
+              <a class="bundle_428_button" href="https://storybundle.com/pride"></a>
+        </div>
+
+        <div id="bundle_counter" data-name="The 2026 Humor Bundle" data-date="17" data-month="6", data-year="2026"></div>
+
+        <div class="subheader">
+          <p class="left_align">
+            
+
+<strong>The Seriously Funny Bundle</strong> - Curated by Alex Shvartsman: Comedy may be hard, but finding good funny books to read should be easy.<br/><br/>
+
+So, given the opportunity to curate a bundle, I wanted to do for novels what I've been doing for short stories – offer you, kind reader, a wide-ranging selection of all kinds of funny, amusing, and downright hilarious books for a very low price. And yes, of course there are several anthologies thrown in, including the latest UFO book which was only published last month. <br/><br/>
+
+To find out more about the <strong>15</strong> books in this bundle, click <a href="https://storybundle.com/blog/seriouslyfunnybundle/">here</a>, and make sure to click on each cover for a synopsis, reviews and preview of each book!<br/><br/>
+
+
+          </p>
+          <a href='javascript:void(0)' class="buy_now" />
+        </div>
+
+        <div id = "book_bundle_wrapper" class="bundle_wrapper_429">
+            <ul class = "top book_lists  active three">
+              <li class="book">
+  
+    <a class="book_detail_link" data-name="Unidentified Funny Objects 9" href="https://storybundle.com/books/4837"><img class="" src="https://storybundle.com/system/book_covers/4837/profile/UFO9_Cover_Final.jpg?1781564273" /></a>
+  
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="Unidentified Funny Objects 9" href="https://storybundle.com/books/4837">
+      Unidentified Funny Objects 9
+</a>  </span>
+  <em>edited by Alex Shvartsman</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="Touched by an Alien" href="https://storybundle.com/books/4827"><img class="" src="https://storybundle.com/system/book_covers/4827/profile/Touched_By_an_Alien_Cover_Final.jpg?1781545835" /></a>
+  
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="Touched by an Alien" href="https://storybundle.com/books/4827">
+      Touched by an Alien
+</a>  </span>
+  <em>by Gini Koch</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="Geekomancy" href="https://storybundle.com/books/4832"><img class="" src="https://storybundle.com/system/book_covers/4832/profile/Geekomancy_Cover_Final.jpg?1781559597" /></a>
+  
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="Geekomancy" href="https://storybundle.com/books/4832">
+      Geekomancy
+</a>  </span>
+  <em>by Michael R. Underwood</em>
+  
+  
+</li>
+            </ul>
+
+              <ul class = "top book_lists  active four">
+                <li class="book">
+  
+    <a class="book_detail_link" data-name="Middling Affliction" href="https://storybundle.com/books/4826"><img class="" src="https://storybundle.com/system/book_covers/4826/profile/The_Middling_Affliction_Cover_Final.jpg?1781544779" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="Middling Affliction" href="https://storybundle.com/books/4826">
+      Middling Affliction
+</a>  </span>
+  <em>by Alex Shvartsman</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="BadAsstronauts" href="https://storybundle.com/books/4828"><img class="" src="https://storybundle.com/system/book_covers/4828/profile/BadAsstronauts_Cover_Final.jpg?1781546975" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="BadAsstronauts" href="https://storybundle.com/books/4828">
+      BadAsstronauts
+</a>  </span>
+  <em>by Grady Hendrix</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="The Plutonium Blonde" href="https://storybundle.com/books/4829"><img class="" src="https://storybundle.com/system/book_covers/4829/profile/The_Plutonium_Blonde_Cover_Final.jpg?1781547581" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="The Plutonium Blonde" href="https://storybundle.com/books/4829">
+      The Plutonium Blonde
+</a>  </span>
+  <em>by John Zakour &amp; Lawrence Ganem</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="Goblin Quest" href="https://storybundle.com/books/4830"><img class="" src="https://storybundle.com/system/book_covers/4830/profile/Goblin_Quest_Cover_Final.jpg?1781556603" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="Goblin Quest" href="https://storybundle.com/books/4830">
+      Goblin Quest
+</a>  </span>
+  <em>by Jim C. Hines</em>
+  
+  
+</li>
+              </ul>
+
+              <ul class = "top book_lists  active four">
+                <li class="book">
+  
+    <a class="book_detail_link" data-name="Big Stick" href="https://storybundle.com/books/4831"><img class="" src="https://storybundle.com/system/book_covers/4831/profile/Big_Stick_Cover_Final.jpg?1781558716" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="Big Stick" href="https://storybundle.com/books/4831">
+      Big Stick
+</a>  </span>
+  <em>by Michael A. Ventrella</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="Tune In Tomorrow" href="https://storybundle.com/books/4833"><img class="" src="https://storybundle.com/system/book_covers/4833/profile/Tune_in_Tomorrow_Cover_Final.jpg?1781561952" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="Tune In Tomorrow" href="https://storybundle.com/books/4833">
+      Tune In Tomorrow
+</a>  </span>
+  <em>by Randee Dawn</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="If Wishes Were Retail" href="https://storybundle.com/books/4834"><img class="" src="https://storybundle.com/system/book_covers/4834/profile/If_Wishes_Were_Retail_Cover_Final.jpg?1781562436" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="If Wishes Were Retail" href="https://storybundle.com/books/4834">
+      If Wishes Were Retail
+</a>  </span>
+  <em>by Auston Habershaw</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="The Runes of Engagement" href="https://storybundle.com/books/4835"><img class="" src="https://storybundle.com/system/book_covers/4835/profile/The_Runes_of_Engagement_Cover_Final.jpg?1781563383" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="The Runes of Engagement" href="https://storybundle.com/books/4835">
+      The Runes of Engagement
+</a>  </span>
+  <em>by Tobias S. Buckell and Dave Klecha</em>
+  
+  
+</li>
+              </ul>
+
+              <ul class = "bottom book_lists  active four">
+                <li class="book">
+  
+    <a class="book_detail_link" data-name="The Hex Is In" href="https://storybundle.com/books/4836"><img class="" src="https://storybundle.com/system/book_covers/4836/profile/The_Hex_Is_In_Cover_Final.jpg?1781563991" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="The Hex Is In" href="https://storybundle.com/books/4836">
+      The Hex Is In
+</a>  </span>
+  <em>by Mike Resnick</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="Unidentified Funny Objects 10" href="https://storybundle.com/books/4838"><img class="" src="https://storybundle.com/system/book_covers/4838/profile/UFO10_Cover_Final.jpg?1781566992" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="Unidentified Funny Objects 10" href="https://storybundle.com/books/4838">
+      Unidentified Funny Objects 10
+</a>  </span>
+  <em>edited by Alex Shvartsman</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="Funny Fantasy" href="https://storybundle.com/books/4839"><img class="" src="https://storybundle.com/system/book_covers/4839/profile/Funny_Fantasy_Cover_Final.jpg?1781567126" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="Funny Fantasy" href="https://storybundle.com/books/4839">
+      Funny Fantasy
+</a>  </span>
+  <em>by Alex Shvartsman</em>
+  
+  
+</li><li class="book">
+  
+    <a class="book_detail_link" data-name="The View From the Imperium" href="https://storybundle.com/books/4840"><img class="" src="https://storybundle.com/system/book_covers/4840/profile/The_View_From_the_Imperium_Cover_Final.jpg?1781643480" /></a>
+  
+    <span class="bonus tier_1">
+      <img src="/assets/icons/bonus_tier1_tag-9a9091ff6c2c04a42ecd187a3dbd912617093ff2b4dd6ae416b100d6064e741e.png" />
+    </span>
+  
+
+  <span>
+    <a class="book_detail_link book_name" data-name="The View From the Imperium" href="https://storybundle.com/books/4840">
+      The View From the Imperium
+</a>  </span>
+  <em>by Jody Lynn Nye</em>
+  
+  
+</li>
+              </ul>
+
+
+          <div class="empty_block" style="height: 30px; clear:both;">&nbsp;</div>
+
+          <div class="section_container">
+            <h2>HOW IT WORKS</h2>
+            
+  <ul class="inline how_it_works">
+    <li>
+      <img src="/assets/icons/authors-0b100636465e6bcc555a3de5fd51de222c905dc330823ffcc958afbd4085b6d6.png" />
+      <span>Support awesome authors by paying however much you think their work is worth!</span>
+    </li>
+    <li style="width: 210px;">
+      <img src="/assets/icons/bonus_big-712e535cb8fca1fe5bd894336795d7179d845c95e408175772dc40e0c2eb26e4.png" />
+      <span>
+        Pay at least $30 to unlock another <strong>12</strong> bonus books, for a total of <strong>15</strong>!</span>
+    </li>
+    <li>
+      <img src="/assets/icons/computers-1dfd2c99028fb5649ba08247c9d14b1abf1cbc30809afcc82b087e01a9f2f997.png" />
+      <span>Read all our books on just about any tablet, ereader, laptop or <br/>even your smartphone.</span>
+    </li>
+  </ul>
+
+          </div>
+
+            <div id="book_reviews">&nbsp;</div>
+            <div class="section_container selected_reviews">
+              <h2>SELECTED REVIEWS</h2>
+                <p class="left"><strong><em>Unidentified Funny Objects 10</em> by Alex Shvartsman</strong></p>
+                <p>&bull;"This book is a delight. There are a lot of giggles here, and every now and then you'll laugh your head off. This is a hoot from start to finish."</p>
+                <em>&ndash; Paul Cook, Galaxy's Edge</em>
+                <p class="left"><strong><em>Unidentified Funny Objects 9</em> by Alex Shvartsman</strong></p>
+                <p>&bull;"A worthwhile, lighthearted read"</p>
+                <em>&ndash; Coleen Chan, Tangent</em>
+                <p class="left"><strong><em>The Hex Is In</em> by Mike Resnick</strong></p>
+                <p>"Charm, delightful absurdity, and imaginative sense of humor where almost nothing is off-limits."</p>
+                <em>&ndash; The Indie Anthenaeum</em>
+                <p class="left"><strong><em>The Runes of Engagement</em> by Tobias S. Buckell and Dave Klecha</strong></p>
+                <p>[STARRED REVIEW] "Will be catnip to readers who love this combination of military SF, alternate history, and fantasy. "</p>
+                <em>&ndash; Library Journal</em>
+                <p class="left"><strong><em>If Wishes Were Retail</em> by Auston Habershaw</strong></p>
+                <p>"Irresistibly fun and funny, with a ton of heart and depth! This is the kind of book that sneaks up on you and sticks with you!"</p>
+                <em>&ndash; Sarah Beth Durst, New York Times bestselling author of The Spellshop</em>
+                <p class="left"><strong><em>Tune In Tomorrow</em> by Randee Dawn</strong></p>
+                <p>"I thought I'd seen everything in the galaxy of reality TV, until Randee's book!"</p>
+                <em>&ndash; Andy Cohen, New York Times bestselling author</em>
+                <p class="left"><strong><em>Geekomancy</em> by Michael R. Underwood</strong></p>
+                <p>"Geekomancy is a glorious blender of genres, like a sweet candy shell filled with pop culture and high heroism. Absolutely stellar."</p>
+                <em>&ndash; Seanan McGuire, New York Times bestselling author of the October Daye and Wayward Children series</em>
+                <p class="left"><strong><em>Big Stick</em> by Michael A. Ventrella</strong></p>
+                <p>"With BIG STICK, Michael Ventrella gives us a wild and thoroughly entertaining steampunk adventure featuring an improbable cast of historical figures, plenty of action, and lots of fun! Highly recommended!"</p>
+                <em>&ndash; Jonathan Maberry, New York Times bestselling author of Deep Silence and V-Wars</em>
+                <p class="left"><strong><em>Goblin Quest</em> by Jim C. Hines</strong></p>
+                <p>"One of the funniest dungeon-delving epics ever!"</p>
+                <em>&ndash; Ed Greenwood, author of Elminster: the Making of a Mage</em>
+                <p class="left"><strong><em>The Plutonium Blonde</em> by John Zakour &amp; Lawrence Ganem</strong></p>
+                <p>"An excellent first novel in the style of the great Douglas Adams ... This novel can be universally recommended to anyone with a funny bone."</p>
+                <em>&ndash; Cinescape</em>
+                <p class="left"><strong><em>Touched by an Alien</em> by Gini Koch</strong></p>
+                <p>Booklist names "Touched by an Alien" one of the Top 10 adult SF/F novels of 2010. "This delightful romp also has many interesting twists and turns as it looks at racism and religion along the way."</p>
+                <em>&ndash; Diana Tixier Herald</em>
+                <p class="left"><strong><em>Middling Affliction</em> by Alex Shvartsman</strong></p>
+                <p>"Shvartsman delivers a laugh-out-loud, snarky adventure, throwing out pop culture references and wry observations with dizzying frequency."</p>
+                <em>&ndash; Publishers Weekly</em>
+                <p class="left"><strong><em>The View From the Imperium</em> by Jody Lynn Nye</strong></p>
+                “. . . it was one of the most enjoyable books of the year for me. It doesn’t tax the brain, and that is perfectly fine. It’s light and fun, and proof that taking risks is worth it.”
+                <em>&ndash; At Boundary’s Edge</em>
+              <div id="buy_now">&nbsp;</div>
+            </div>
+
+          <div class="section_container" id="payment_form_section">
+            <h2>GET THE BUNDLE</h2>
+            <form class="simple_form new_payment" id="new_payment" novalidate="novalidate" action="/payments" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="/UJeFrX/kWvd8WsHBa8eSIy/2S/2UJ3q31337DdZ/thnzcqUyp/M0NwyJujv+kmL7ixJtIazY3zmR4QxZ2Lorg==" />
+  <div class="input hidden payment_book_bundle"><input class="hidden" type="hidden" value="429" name="payment[book_bundle_id]" id="payment_book_bundle_id" /></div>
+  <input type="hidden" value="BookBundle" name="payment[order_type]" id="payment_order_type" />
+  <input type="hidden" value="429" name="payment[order_id]" id="payment_order_id" />
+
+
+
+  <div class='clear'>&nbsp;</div>
+  <p class="failure"></p>
+  <div class="input slider optional payment">
+    <label for="payment_total">Total &nbsp; &nbsp; $</label>
+    <input class="currency" type="text" value="40.00" name="payment[total]" id="payment_total" />
+    <div id="total_slider" data-minimum = "5" data-maximum = "100"></div>
+      <span class="bonus_indicator active bonus_30 bundle429" data-bonus-price= "30" data-bonus-tier="1" title="Pay at least $30.00 to unlock the bonus books!"></span>
+
+      <span id='bonus_indicator_text'>
+          Bonus activated!
+      </span>
+  </div>
+
+  <div class="input slider optional">
+    <label>Authors/Storybundle Split</label>
+    <input type="hidden" name="payment[split_percentage]" id="payment_split_percentage" />
+    <div id="split_slider" data-value = "70" ></div>
+    <span id="split_author_amt">70% for Authors</span>
+    <span id="split_site_amt">30% for StoryBundle</span>
+  </div>
+
+  <a class="learn_more" id="charity_info" href="https://storybundle.com/charity_info?charities%5B%5D=Deep+Vellum">Learn More</a>
+  <div class="input hidden payment_charity_percentage"><input class="hidden" type="hidden" value="10" name="payment[charity_percentage]" id="payment_charity_percentage" /></div>
+  <div class="input select optional payment_charity_id"><label class="select optional inline" for="payment_charity_id">Donate 10% of your purchase to a charity?</label><select class="select optional" name="payment[charity_id]" id="payment_charity_id"><option value="">No, Thanks.</option>
+<option value="52">Deep Vellum</option></select></div>
+
+  <div class="input select optional">
+    <input name="payment[subscribe_newsletter]" type="hidden" value="0" /><input type="checkbox" value="1" checked="checked" name="payment[subscribe_newsletter]" id="payment_subscribe_newsletter" />
+    <label class="inline">Tell me when the next bundle is available!</label>
+  </div>
+
+  <div class="input checkbox optional" style="margin-top:0;">
+      <input name="payment[has_gift]" type="hidden" value="0" /><input type="checkbox" value="1" name="payment[has_gift]" id="payment_has_gift" />
+      <label class="inline">Is this a gift?</label>
+      <span id="payment_is_gift_description" style="display:none;">Please enter in <em>your own</em> email address here so we can send you an order confirmation. You can specify who the gift is for and create a gift message in the next page.</span>
+  </div>
+
+  <div class="input email required">
+    <input label="false" placeholder="Your Email Address" type="email" name="payment[email]" id="payment_email" />
+    <input label="false" placeholder="Confirm Email Address" type="email" name="payment[email_confirmation]" id="payment_email_confirmation" />
+  </div>
+
+  <p><b>You are purchasing The 2026 Humor Bundle.</b></p>
+
+  <div class="button_wrapper payment_button" style="">
+    <input type="hidden" name="payment[payment_method]" id="payment_payment_method" />
+    <div id="paypal-button-container"></div>
+<a data-name="amazon" class="purchase button" href="javascript:void(0);">Pay with Amazon</a>
+<a data-name="stripe" class="purchase button" href="javascript:void(0);">Pay with Credit Card</a>
+
+  </div>
+
+  <div class="button_wrapper gift_button" style="display: none;">
+    <input type="submit" name="commit" value="Set Up My Gift" data-disable-with="Set Up My Gift" />
+  </div>
+  <div class="process">Processing...</div>
+  <div class="loading"><img src="/assets/loading-aebc793d0064383ee6b1625bf3bb32532ec30a5c12bf9117066107d412119123.gif" /></div>
+</form>
+          </div>
+
+        <div class="section_container">
+          <h2>BOOKS WITH BENEFITS</h2>
+          <p class="left">
+  <strong>Pay what you want!</strong>
+  You choose how much you want to pay for these awesome books. (Click on each book above to check them out.) You decide how much of your purchase goes to the author and how much goes to help keep StoryBundle running. If your purchase price is $30 or more, you get <strong>12</strong> more books, for a total of <strong>15</strong>: <em>Funny Fantasy</em> by Alex Shvartsman, <em>Unidentified Funny Objects 10</em> edited by Alex Shvartsman, <em>The Hex Is In</em> by Mike Resnick, <em>The Runes of Engagement</em> by Tobias S. Buckell and Dave Klecha, <em>If Wishes Were Retail</em> by Auston Habershaw, <em>Tune In Tomorrow</em> by Randee Dawn, <em>Big Stick</em> by Michael A. Ventrella, <em>Goblin Quest</em> by Jim C. Hines, <em>The Plutonium Blonde</em> by John Zakour & Lawrence Ganem, <em>BadAsstronauts</em> by Grady Hendrix, <em>Middling Affliction</em> by Alex Shvartsman and <em>The View From the Imperium</em> by Jody Lynn Nye!
+</p>
+
+          <p class="left"><strong>Zero DRM.</strong> There's <a href="http://www.defectivebydesign.org/drm-free" target="_blank">no DRM</a> on any of our books. None. Why? For one, we don't believe DRM actually stops people from sharing what they want to share. Second, and most importantly, we don't believe we should be treating our customers as criminals. So go ahead and put these on your tablets, Kindles and smartphones, but if a friend wants to read the bundle, please have them buy one for themselves. With pay-what-you-want, we believe there's a price for everyone. Or better yet, buy one for them as a gift. Help support indie authors!
+
+          <p class="left">
+  <strong>Support nonprofits.</strong> Best of all, you can also give a portion of the proceeds from each bundle to charity. To learn more about these charities and those they help, click the "Learn More" link next the charities when you purchase.
+</p>
+
+          <p class="left"><strong>Easy delivery.</strong> It's super convenient to get these ebooks onto your reader of choice&mdash;just download and sync. Better yet, if you have a Kindle or Kindle-enabled tablet or smartphone, we can send the books directly to your device. No computer required.</p>
+
+          <p class="left">
+            <strong>Missed our previous bundles?</strong>
+            Check them out <a target="_blank" href="https://storybundle.com/archive">here</a>.
+          </p>
+        </div>
+
+        <div class="tip_holder">
+          <div class="tip_arrow"><div class="tip_arrow_inner"></div></div>
+          <div class="tip_content"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div id="footer">
+  <ul class="inline">
+    <li><a href="https://storybundle.com/faq">FAQ</a></li>
+    <li><a href="https://storybundle.com/news">News</a></li>
+    <li><a href="https://storybundle.com/archive">Archive</a></li>
+    <li><a href="https://storybundle.com/privacy">Privacy</a></li>
+    <li><a href="https://storybundle.com/terms">Terms</a></li>
+    <li><a href="https://storybundle.com/contact">Contact Us</a></li>
+  </ul>
+  <p id="copyright">&copy; 2024 StoryBundle. All rights reserved.</p>
+</div>
+
+    </div>
+
+    
+    <script type="text/javascript">
+      _gaq.push(['_trackEvent', 'Purchase', 'Viewed Bundle', "The 2026 Humor Bundle"]);
+    </script>
+  </body>
+</html>
