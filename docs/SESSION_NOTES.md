@@ -6,7 +6,7 @@
 
 | Role | Status | Last Active | Notes |
 |------|--------|-------------|-------|
-| Rookwood | Done | 2026-06-19 | Escape from 2026: created drafts 5733/5734/5735 (Doug, DeAnna, Michael); prior batch 5715-5717 published |
+| Rookwood | Done | 2026-06-26 | Escape from 2026 interview series complete (last: Kris 5741, MRT editors 5745, MRT contributors 5749). Bundle ended 6/25. Engine now format-agnostic + format contract documented. Open: PUB-6 (blocked on Jamie's functions.php snippet), PUB-9, PUB-10. |
 
 **Status Icons:** -- Idle | Active | Blocked | Done
 
@@ -16,7 +16,7 @@
 
 Read this file to pick up where the last session left off:
 
-> docs/session-comms/handoff-2026-06-19.md
+> docs/session-comms/handoff-2026-06-26.md
 
 ---
 
