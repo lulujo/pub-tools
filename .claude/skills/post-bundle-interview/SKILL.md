@@ -14,6 +14,8 @@ The conversion + WordPress writes are done by a committed, tested script — **d
 - Engine: `integrations/wordpress/md_to_gutenberg.py`
 - Tests: `integrations/wordpress/test_md_to_gutenberg.py` (run after any change to the engine)
 
+**Format contract** (what the engine supports — single-author, parallel/joint, compiled-group, and the inline marks): `~/Dropbox/dev/publishing/protocols/BLOG_POST_FORMATS.md` → "Supported Structures & Converter Contract." The engine renders the interview body in document order, so any layout built from headings/paragraphs/lists/dividers + the inline set just works. If a post needs a block type *not* in that contract (inline image mid-body, pull-quote, table, columns, button), extend the engine first (with a test) rather than hand-patching.
+
 ## Usage
 
 `/post-bundle-interview <author name, or path(s) to interview_post.md>`
