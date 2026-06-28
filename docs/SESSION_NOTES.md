@@ -6,7 +6,7 @@
 
 | Role | Status | Last Active | Notes |
 |------|--------|-------------|-------|
-| Rookwood | Done | 2026-06-27 | PUB-11 StoryBundle scraper built & Done (integrations/storybundle/, 20 tests, verified live on /humor). Open: PUB-6 (blocked on Jamie's functions.php snippet), PUB-9, PUB-10. |
+| Rookwood | Active | 2026-06-28 | Scoping direct sales on Blackbird WP. Open: PUB-6 (blocked on Jamie's functions.php snippet), PUB-9, PUB-10. |
 
 **Status Icons:** -- Idle | Active | Blocked | Done
 
@@ -138,6 +138,13 @@ StoryBundle author interviews (Escape from 2026, Write Stuff, future bundles) ar
 - Skill: `.claude/skills/post-bundle-interview/SKILL.md` (full workflow + config format)
 - Engine: `integrations/wordpress/md_to_gutenberg.py` (markdown&rarr;Gutenberg conversion, retry-wrapped REST, idempotent media reuse, `verify()` self-checks)
 - Tests: `integrations/wordpress/test_md_to_gutenberg.py` &mdash; run after any engine change. Each case is a real bug we hit (nested bold/italic, opening-quote-after-`*`/em-dash, en dash, `E=mc²`, ampersands, italic-inside-link). The converter rationale lives in the engine docstring.
+
+### StoryBundle scraper &mdash; use `integrations/storybundle/`
+Pulling a StoryBundle's contents (books, authors, covers, tiers, detail links) is handled by a committed, tested tool (PUB-11) &mdash; **do not rebuild a scraper in /tmp**:
+- Tool: `integrations/storybundle/storybundle.py` (stdlib-only; `python3 storybundle.py <slug>` &rarr; JSON; `--details` adds per-book `author_bio` + best-effort `synopsis`). Full usage in its `README.md`.
+- Tests: `integrations/storybundle/test_storybundle.py` &mdash; run after any change (pre-commit hook runs it when staged).
+- **Must run while the bundle is LIVE.** Expired bundle pages are JS shells with zero book links &mdash; the data can't be recovered after the promo window. A `count: 0` result means expired-or-wrong-slug, not "no books."
+- Consumers: the listing layer feeds Inkwren catalog cross-ref + spotlight/interview target lists; the publishing repo's StoryBundle role session exercises `--details`. Field-design rationale: `docs/session-comms/storybundle-scraper-details-field.md`.
 
 ### WPEngine/Cloudflare 5xx during bulk REST
 Bulk REST runs occasionally hit transient **522/525** from Cloudflare/WPEngine, and WPEngine 1010s any request without a `User-Agent` header. The engine above already wraps calls in retry-on-5xx and reuses already-uploaded media (a 522 between the image POST and the alt-text POST otherwise leaves an orphan upload). For any *other* REST work, do the same: set a UA, retry 5xx, and `GET /media?search=<filename>` before re-uploading to avoid duplicates.

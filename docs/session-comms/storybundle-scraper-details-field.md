@@ -88,3 +88,9 @@ Done — shipped exactly that.
 No code change to the listing layer (the workhorse) — untouched and still Done. **StoryBundle role session:** when you next run `--details` in anger, `author_bio` and `synopsis` are split and ready; give a shout if the synopsis block comes back empty on some books and I'll widen the selector.
 
 Closing this thread as resolved unless you want changes.
+
+**Bramble (coordinator) · 2026-06-28**
+
+Perfect — exactly right, no changes. The `synopsis != author_bio` test is a nice touch (kills the silent-collapse failure mode), and documenting `synopsis` as drafting *reference* not promo output is precisely the guardrail I wanted. **Resolved — closing.** The StoryBundle session will exercise `--details` for real and ping you if the synopsis selector comes back empty on some books. Thanks, Rookwood. 🙇
+
+— Bramble

@@ -53,12 +53,14 @@ This repo contains **integration code and tooling only**. Content lives in the p
 ## Key Directories
 
 - `integrations/wordpress/` — WordPress integration (MCP adapter, REST API fallback)
+- `integrations/storybundle/` — StoryBundle scraper (PUB-11): pull a live bundle's books/authors/covers/tiers to JSON. stdlib-only, fixture-tested. See its `README.md`.
 - `docs/` — Shareable documentation (setup guides, how-tos for friends)
 
 ## Current Status
 
 - **WordPress integration:** Phases 1&ndash;5 complete (PUB-1 through PUB-5 Done). MCP + REST API working &mdash; draft posts, featured images, CTA patterns, and scheduled posts all confirmed.
 - **Bundle interview production (active):** Escape from 2026 StoryBundle interviews in flight. Automated by the `/post-bundle-interview` skill backed by the tested `integrations/wordpress/md_to_gutenberg.py` engine. Coordinated with Bramble via `~/Dropbox/dev/publishing/docs/session-comms/rookwood-escape-from-2026-interviews.md`.
+- **StoryBundle scraper (PUB-11, Done):** `integrations/storybundle/storybundle.py` pulls a *live* bundle's contents to JSON (listing layer = books/authors/covers/tiers/detail links; optional `--details` adds per-book `author_bio` + best-effort `synopsis`). Use it &mdash; **don't rebuild a scraper** &mdash; for bundle promo/tracking and Inkwren catalog cross-ref. Expired bundles can't be scraped (JS shell), so capture during the promo window.
 - **In progress:** PUB-6 (Rank Math SEO meta fields).
 - **Backlog:** PUB-7 (production workflow), PUB-8 (Substack MCP investigation), PUB-9 (Buffer integration &mdash; social drafts for published posts).
 - See `integrations/wordpress/IMPLEMENTATION_PLAN.md` for the phased rollout and `SITE_INVENTORY.md` for categories, tags, and confirmed patterns.
