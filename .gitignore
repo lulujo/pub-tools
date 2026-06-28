@@ -18,6 +18,7 @@ Thumbs.db
 *~
 .vscode/
 .idea/
+.obsidian/
 
 # Claude Code local config (contains local paths and credential references)
 .mcp.json
