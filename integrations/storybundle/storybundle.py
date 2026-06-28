@@ -12,7 +12,9 @@ Why this exists (and why it has to run WHILE the bundle is live):
     STATIC HTML containing the full book list. A plain HTTP GET + tolerant
     HTML parse works -- no headless browser, no JS rendering needed.
   - A per-book page (https://storybundle.com/books/<id>) is ALSO static HTML
-    with title/author/cover/description in the body.
+    with title/author/cover, an author bio, and the book's synopsis in the
+    body (the bio and synopsis are separate page blocks -- we keep them as
+    separate fields).
   - EXPIRED bundles are stripped to a JS shell with ZERO book links in the
     raw HTML. You CANNOT recover the data after the bundle ends -- so pull it
     during the promo window.
@@ -199,13 +201,27 @@ def parse_bundle(html):
 _BOOK_TITLE = re.compile(r"<title>(.*?)\s*-\s*StoryBundle</title>", re.S)
 # The book page repeats the title + byline in an <h2> at the top of the body.
 _BOOK_H2 = re.compile(r"<h2[^>]*>\s*(.*?)<em>(.*?)</em>", re.S)
-# The scrolling "overview" pane holds the description / author bio text.
-_BOOK_OVERVIEW = re.compile(r'class="overview"[^>]*>(.*?)</div>\s*</div>', re.S)
+# The FIRST scrolling "overview" pane (right after the cover) is the author /
+# curator bio -- NOT the book's synopsis. Keep them as separate fields so a
+# bio never gets mistaken for book promo copy (Bramble's call -- see the
+# storybundle-scraper-details-field comms thread).
+_BOOK_AUTHOR_BIO = re.compile(r'class="overview"[^>]*>(.*?)</div>\s*</div>', re.S)
+# The book's own synopsis lives in <div class="description"> inside the
+# book_section_wrapper. Best-effort: treated as reference context, not output
+# (house style doesn't lift scraped synopsis text verbatim into promo).
+_BOOK_SYNOPSIS = re.compile(r'<div\s+class=[\'"]description[\'"]>(.*?)</div>', re.S)
 _BOOK_COVER = re.compile(r'(https?://[^"\']*?/book_covers/\d+/[^"\'\s]+)')
 
 
 def parse_book(html):
-    """Parse a per-book detail page into a dict (best-effort, tolerant)."""
+    """Parse a per-book detail page into a dict (best-effort, tolerant).
+
+    `author_bio` and `synopsis` are deliberately distinct: the first text pane
+    on a StoryBundle book page is the author/curator bio, while the book's own
+    blurb sits in a separate `description` div. A field named "description"
+    holding a bio is a latent bug (it reads as book copy), so we name them for
+    what they actually are. `synopsis` is best-effort and may be None.
+    """
     title_match = _BOOK_TITLE.search(html)
     title = _clean(title_match.group(1)) if title_match else None
 
@@ -220,15 +236,19 @@ def parse_book(html):
     cover_match = _BOOK_COVER.search(html)
     cover_url = cover_match.group(1) if cover_match else None
 
-    overview_match = _BOOK_OVERVIEW.search(html)
-    description = _clean(overview_match.group(1)) if overview_match else None
+    bio_match = _BOOK_AUTHOR_BIO.search(html)
+    author_bio = _clean(bio_match.group(1)) if bio_match else None
+
+    synopsis_match = _BOOK_SYNOPSIS.search(html)
+    synopsis = _clean(synopsis_match.group(1)) if synopsis_match else None
 
     return {
         "title": title,
         "author": author,
         "role": role,
         "cover_url": cover_url,
-        "description": description,
+        "author_bio": author_bio,
+        "synopsis": synopsis,
     }
 
 

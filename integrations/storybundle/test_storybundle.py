@@ -147,9 +147,22 @@ class ParseBookDetailTests(unittest.TestCase):
     def test_cover(self):
         self.assertIn("/book_covers/4837/", self.detail["cover_url"])
 
-    def test_description_present(self):
-        self.assertTrue(self.detail["description"])
-        self.assertIn("Alex Shvartsman", self.detail["description"])
+    def test_author_bio_present(self):
+        # The first overview pane is the author/curator bio.
+        self.assertTrue(self.detail["author_bio"])
+        self.assertIn("Alex Shvartsman", self.detail["author_bio"])
+
+    def test_synopsis_is_book_blurb_not_bio(self):
+        # The synopsis comes from the separate <div class="description"> and
+        # describes the BOOK, not the author -- the whole point of splitting
+        # the fields. It must not be the bio text.
+        self.assertTrue(self.detail["synopsis"])
+        self.assertIn("Unidentified Funny Objects", self.detail["synopsis"])
+        self.assertNotEqual(self.detail["synopsis"], self.detail["author_bio"])
+
+    def test_no_legacy_description_field(self):
+        # The ambiguous "description" field was renamed; it must be gone.
+        self.assertNotIn("description", self.detail)
 
 
 if __name__ == "__main__":

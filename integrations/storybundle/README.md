@@ -54,7 +54,15 @@ python3 storybundle.py humor --details
 ```
 
 With `--details`, each book gains a `"details"` object: `title`, `author`,
-`role`, `cover_url`, `description`.
+`role`, `cover_url`, `author_bio`, and `synopsis`.
+
+`author_bio` and `synopsis` are **separate fields on purpose**: the first text
+pane on a StoryBundle book page is the author/curator bio, while the book's own
+blurb sits in a separate block. A single field named "description" holding a bio
+reads as book copy and invites mistakes, so they're named for what they are.
+`synopsis` is **best-effort** (may be `null`) and is intended as drafting
+*reference*, not promo output — per house style we don't lift scraped synopsis
+text verbatim.
 
 ## Tests
 
