@@ -95,7 +95,26 @@ Use `mcp__blackbird-wp__create_post` with:
 - `tags`: `[378]` for Haunted Waters (add author tag ID if it exists)
 - `author`: `2` (Blackbird Publishing). Posts default to the `claude` user otherwise, which isn't visible in the editor UI but shows on the published post. Always set this.
 
-## Step 6: Featured Image (if available)
+## Step 6: Set SEO (Rank Math)
+
+Set the post's SEO meta after creation. MCP can't write post meta — use a direct REST PATCH.
+Full pattern + rationale: `integrations/wordpress/RANK_MATH_SEO.md`.
+
+- **Focus keyword** = the story title.
+- **Description** (≤ 155 chars): `{Author}’s {Story}—a story spotlight from {Anthology}.` (append `, from Blackbird Publishing` only if it still fits). Curly apostrophes / em dashes are fine; no quotes around the title.
+- Leave SEO **title** and **canonical** empty — Rank Math's template handles the title.
+
+```bash
+source /Users/jamieferguson/Dropbox/dev/pub-tools/.env
+WP_PASS=$(echo "$CLAUDE_BLACKBIRD_WP_PASSWORD" | tr -d ' ')
+curl -s -X POST "https://blackbirdpublishing.com/wp-json/wp/v2/posts/<POST_ID>" \
+  -u "claude:${WP_PASS}" -H 'User-Agent: pub-tools' -H 'Content-Type: application/json' \
+  --data '{"meta":{"rank_math_focus_keyword":"...","rank_math_description":"..."}}'
+```
+
+Read back (`GET /posts/<id>?context=edit` → `.meta`) to confirm the write stuck.
+
+## Step 7: Featured Image (if available)
 
 Check for a featured image:
 1. `~/Dropbox/Jamie/Writing and Publishing/Blackbird Publishing/Publishing/Anthologies/The Haunted Anthology/#3 - Haunted Waters/Promo images/1200x628/Spotlights/`
@@ -116,7 +135,7 @@ Then set alt text via `mcp__blackbird-wp__edit_media` and attach via `mcp__black
 
 If no image found, tell Jamie. The post can be created without one.
 
-## Step 7: Report
+## Step 8: Report
 
 Tell Jamie:
 - Post ID and title

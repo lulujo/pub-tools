@@ -6,7 +6,7 @@
 
 | Role | Status | Last Active | Notes |
 |------|--------|-------------|-------|
-| Rookwood | Active | 2026-06-28 | Scoping direct sales on Blackbird WP. Open: PUB-6 (blocked on Jamie's functions.php snippet), PUB-9, PUB-10. |
+| Rookwood | Active | 2026-06-28 | PUB-6 (Rank Math SEO) Done &mdash; snippet live in new Kadence child theme; 27 Haunted Waters posts backfilled; skills now set SEO. Open: PUB-9, PUB-10. |
 
 **Status Icons:** -- Idle | Active | Blocked | Done
 
@@ -148,6 +148,12 @@ Pulling a StoryBundle's contents (books, authors, covers, tiers, detail links) i
 
 ### WPEngine/Cloudflare 5xx during bulk REST
 Bulk REST runs occasionally hit transient **522/525** from Cloudflare/WPEngine, and WPEngine 1010s any request without a `User-Agent` header. The engine above already wraps calls in retry-on-5xx and reuses already-uploaded media (a 522 between the image POST and the alt-text POST otherwise leaves an orphan upload). For any *other* REST work, do the same: set a UA, retry 5xx, and `GET /media?search=<filename>` before re-uploading to avoid duplicates.
+
+### Blackbird active theme = Kadence (custom PHP goes in the child theme)
+Blackbird's active theme is **Kadence** (a third-party theme that auto-updates). Custom PHP snippets (e.g. the Rank Math REST registration) live in the **Kadence child theme**: `wp-content/themes/kadence-child/functions.php`. Do **not** edit the Kadence *parent* (wiped on update) or `blackbirdtwentyseventeen` (dormant, not active). The child theme was created 2026-06-28; its `functions.php` has an `after_switch_theme` hook that one-time-copies the parent's theme_mods (Customizer/menus/Additional CSS) on activation. Theme files aren't REST-editable &mdash; Jamie deploys child-theme changes via SFTP/WPEngine.
+
+### Rank Math SEO &mdash; use the skills / `seo_backfill.py`
+SEO meta fields are REST-writable now (PUB-6 Done). MCP **cannot** write post meta &mdash; PATCH `/posts/<id>` with `{"meta":{"rank_math_focus_keyword":...,"rank_math_description":...}}` (UA + 5xx retry + read-back). The posting skills do this automatically. To backfill old posts: `python3 integrations/wordpress/seo_backfill.py --tag <id> --anthology "Name: Subtitle"` (dry run; add `--apply`). Curly apostrophes/em dashes round-trip fine in meta. Full reference: `integrations/wordpress/RANK_MATH_SEO.md`.
 
 ---
 

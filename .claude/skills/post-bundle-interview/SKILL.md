@@ -144,7 +144,26 @@ The engine: uploads banner + cover (with retry on transient 5xx, and **reuses** 
 
 `verify()` catches: stray markdown `*`, an opening quote mis-rendered as a closing `&rdquo;`, a leaked `[JAMIE:]` flag, and leaked image-meta lines. If it flags something, fix the engine (and add a test case) — don't hand-patch the post.
 
-## Step 5: Report and reply on the thread
+## Step 5: Set SEO (Rank Math)
+
+The engine prints each new post's ID + author/title. Set SEO meta per post via REST (MCP can't
+write post meta). Full pattern + rationale: `integrations/wordpress/RANK_MATH_SEO.md`.
+
+- **Focus keyword** = the book/story title (or the author name if the interview spans their work).
+- **Description** (≤ 155 chars): `{Author} on writing {Title} for the {Bundle} StoryBundle—an author interview from Blackbird Publishing.` (trim the trailing tagline if it runs long). Curly apostrophes / em dashes are fine; no quotes around the title.
+- Leave SEO **title** and **canonical** empty — Rank Math's template handles the title.
+
+```bash
+source /Users/jamieferguson/Dropbox/dev/pub-tools/.env
+WP_PASS=$(echo "$CLAUDE_BLACKBIRD_WP_PASSWORD" | tr -d ' ')
+curl -s -X POST "https://blackbirdpublishing.com/wp-json/wp/v2/posts/<POST_ID>" \
+  -u "claude:${WP_PASS}" -H 'User-Agent: pub-tools' -H 'Content-Type: application/json' \
+  --data '{"meta":{"rank_math_focus_keyword":"...","rank_math_description":"..."}}'
+```
+
+Read back (`GET /posts/<id>?context=edit` → `.meta`) to confirm the write stuck.
+
+## Step 6: Report and reply on the thread
 
 In the session and on the Bramble thread, give per post: **post ID, the will-be permalink** (`https://blackbirdpublishing.com/<slug>/`, live once Jamie publishes), media IDs, author tag (and whether newly created), and confirmation that voice notes were honored. Provide live permalinks for any posts Jamie has since published (the tracker + each `social.md` need them). Remind Jamie that WP Media folders are assigned manually (taxonomy not API-accessible).
 

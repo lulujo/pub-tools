@@ -65,13 +65,32 @@ Use `mcp__blackbird-wp__create_post` with:
 - `tags`: anthology/project tag (e.g., `[378]` for Haunted Waters, `[387]` for Write Stuff StoryBundle, `[393]` for Escape from 2026 StoryBundle) + author tag. **Always create or find an author-name tag** — search existing tags first, create via REST API if needed.
 - `author`: `2` (Blackbird Publishing). Posts default to the `claude` user otherwise, which isn't visible in the editor UI but shows on the published post. Always set this.
 
-## Step 5: Featured Image
+## Step 5: Set SEO (Rank Math)
+
+Set the post's SEO meta after creation. MCP can't write post meta — use a direct REST PATCH.
+Full pattern + rationale: `integrations/wordpress/RANK_MATH_SEO.md`.
+
+- **Focus keyword** = the story title.
+- **Description** (≤ 155 chars): `{Author} on writing {Story} for {Anthology}—an author interview from Blackbird Publishing.` Curly apostrophes / em dashes are fine; no quotes around the title.
+- Leave SEO **title** and **canonical** empty — Rank Math's template handles the title.
+
+```bash
+source /Users/jamieferguson/Dropbox/dev/pub-tools/.env
+WP_PASS=$(echo "$CLAUDE_BLACKBIRD_WP_PASSWORD" | tr -d ' ')
+curl -s -X POST "https://blackbirdpublishing.com/wp-json/wp/v2/posts/<POST_ID>" \
+  -u "claude:${WP_PASS}" -H 'User-Agent: pub-tools' -H 'Content-Type: application/json' \
+  --data '{"meta":{"rank_math_focus_keyword":"...","rank_math_description":"..."}}'
+```
+
+Read back (`GET /posts/<id>?context=edit` → `.meta`) to confirm the write stuck.
+
+## Step 6: Featured Image
 
 Same process as post-spotlight — check the Promo images directory for an interview-specific image:
 `~/Dropbox/Jamie/Writing and Publishing/Blackbird Publishing/Publishing/Anthologies/The Haunted Anthology/#3 - Haunted Waters/Promo images/1200x628/Interviews/`
 
 Upload via REST API if found. See `/post-spotlight` skill for the curl command.
 
-## Step 6: Report
+## Step 7: Report
 
 Tell Jamie: Post ID, title, what's complete, what has placeholders, whether image was attached, and remind about media folder assignment.
