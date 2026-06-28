@@ -6,7 +6,7 @@
 
 | Role | Status | Last Active | Notes |
 |------|--------|-------------|-------|
-| Rookwood | Active | 2026-06-28 | PUB-6 (Rank Math SEO) Done &mdash; snippet live in new Kadence child theme; 27 Haunted Waters posts backfilled; skills now set SEO. Open: PUB-9, PUB-10. |
+| Rookwood | Active | 2026-06-28 | PUB-6 (Rank Math SEO) Done &mdash; snippet live in new Kadence child theme; all 2026 spotlight/interview posts backfilled (49: HW 27 + Write Stuff 10 + Escape from 2026 12); skills now set SEO. ~200 pre-2026 posts left to Rank Math fallback (optional). Open: PUB-9, PUB-10. |
 
 **Status Icons:** -- Idle | Active | Blocked | Done
 

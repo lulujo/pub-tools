@@ -15,7 +15,10 @@ USER = "claude"
 UA = "pub-tools/seo-backfill (Rookwood)"
 ENV = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
 
-TITLE_RE = re.compile(r'^(Interview|Story Spotlight):\s*[“"”]?(.+?)[”"“]?\s+by\s+(.+?)\s*$')
+# "by" format: anthology spotlights/interviews — Interview/Story Spotlight: "Title" by Author
+TITLE_RE = re.compile(r'^(Interview|Story Spotlight):\s*[“"”]?(.+?)[”"“]?\s+by\s+(.+?)\s*$', re.I)
+# "on" format: StoryBundle author interviews — Interview: Author on Work Title
+BUNDLE_RE = re.compile(r'^Interview:\s*(.+?)\s+on\s+(.+?)\s*$', re.I)
 
 
 def load_auth():
@@ -63,25 +66,51 @@ def fetch_posts(auth, tag):
     return posts
 
 
-def propose(title, anthology):
-    m = TITLE_RE.match(html.unescape(title))
+def _pick(*candidates):
+    """Return the first candidate <= 155 chars, else the last truncated."""
+    for c in candidates:
+        if len(c) <= 155:
+            return c
+    return candidates[-1][:154] + "…"
+
+
+def propose(title, anthology, bundle=False):
+    title = html.unescape(title)
+    if bundle:
+        # StoryBundle author interview: "Interview: Author on Work" (check "on" before "by",
+        # since a work title can itself contain " by ", e.g. "Brick by Brick").
+        m = BUNDLE_RE.match(title)
+        if not m:
+            return None
+        author, work = m.group(1).strip(), m.group(2).strip()
+        desc = _pick(
+            f"{author} on {work}, in the {anthology} StoryBundle—an author interview from Blackbird Publishing.",
+            f"{author} on {work}, in the {anthology} StoryBundle.",
+            f"{author} on {work}.",
+        )
+        return {"kind": "Bundle Interview", "rank_math_focus_keyword": work, "rank_math_description": desc}
+    m = TITLE_RE.match(title)
     if not m:
         return None
     kind, story, author = m.group(1), m.group(2).strip().strip('“”"'), m.group(3).strip()
-    if kind == "Story Spotlight":
-        long_ = f"{author}’s {story}—a story spotlight from {anthology}, from Blackbird Publishing."
-        short = f"{author}’s {story}—a story spotlight from {anthology}."
+    if kind.lower() == "story spotlight":
+        desc = _pick(
+            f"{author}’s {story}—a story spotlight from {anthology}, from Blackbird Publishing.",
+            f"{author}’s {story}—a story spotlight from {anthology}.",
+        )
     else:
-        long_ = f"{author} on writing {story} for {anthology}—an author interview from Blackbird Publishing."
-        short = f"{author} on writing {story} for the anthology {anthology}."
-    desc = long_ if len(long_) <= 155 else (short if len(short) <= 155 else short[:154] + "…")
+        desc = _pick(
+            f"{author} on writing {story} for {anthology}—an author interview from Blackbird Publishing.",
+            f"{author} on writing {story} for the anthology {anthology}.",
+        )
     return {"kind": kind, "rank_math_focus_keyword": story, "rank_math_description": desc}
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", type=int, required=True, help="Anthology tag ID (e.g. 378 = Haunted Waters)")
-    ap.add_argument("--anthology", required=True, help='Anthology name, e.g. "Haunted Waters: 15 Tales from the Depths"')
+    ap.add_argument("--anthology", required=True, help='Anthology/bundle name, e.g. "Haunted Waters: 15 Tales from the Depths" or "Escape from 2026"')
+    ap.add_argument("--bundle", action="store_true", help='StoryBundle interviews ("Author on Title" format) — use the bundle description template')
     ap.add_argument("--apply", action="store_true", help="Write changes (default: dry run)")
     args = ap.parse_args()
 
@@ -93,7 +122,7 @@ def main():
         if any(meta.get(k) for k in ("rank_math_title", "rank_math_description", "rank_math_focus_keyword")):
             continue  # already has SEO
         title = p["title"]["rendered"] if isinstance(p["title"], dict) else p["title"]
-        prop = propose(title, args.anthology)
+        prop = propose(title, args.anthology, bundle=args.bundle)
         if not prop:
             print(f"  [{pid}] SKIP (title did not parse): {html.unescape(title)}")
             continue

@@ -69,13 +69,24 @@ Going forward, the posting skills set SEO automatically, so no manual work is ne
 historical backlog (one anthology at a time), use the committed helper:
 
 ```
+# Anthology spotlights/interviews ("Title" by Author):
 python3 integrations/wordpress/seo_backfill.py --tag <TAG_ID> --anthology "Anthology: Subtitle" [--apply]
+# StoryBundle author interviews ("Author on Title"):
+python3 integrations/wordpress/seo_backfill.py --tag <TAG_ID> --anthology "Bundle Name" --bundle [--apply]
 ```
 
 Without `--apply` it prints the proposed focus keyword + description for every post tagged `<TAG_ID>`
 that lacks SEO (a dry run). With `--apply` it writes them and verifies each round-trip. It skips
-posts that already have Rank Math data. Anthology tag IDs live in
-[the spotlight skill](../../.claude/skills/post-spotlight/SKILL.md) (e.g. Haunted Waters = 378).
+posts that already have Rank Math data, and any title it can't parse (panels, roundups — handle those
+by hand). Anthology/bundle tag IDs live in
+[the spotlight skill](../../.claude/skills/post-spotlight/SKILL.md) (e.g. Haunted Waters = 378,
+Escape from 2026 = 393, Write Stuff = 387).
 
-**Done so far:** Haunted Waters (tag 378) — 27 posts, 2026-06-28.
-**Not yet backfilled:** other anthologies (e.g. Haunted Places, Escape from 2026, Write Stuff) — optional.
+**Done so far:** all **2026** spotlight/interview posts —
+Haunted Waters (tag 378, 27 posts) + Write Stuff (tag 387, 10) + Escape from 2026 (tag 393, 12),
+backfilled 2026-06-28. (One panel post, 5749, hand-written; the dup draft 5480 left for deletion.)
+**Not backfilled (optional):** ~200 pre-2026 spotlight/interview posts across ~20 older anthologies
+(Haunted Places, Haunted, Wild Magic, Realm of Faerie, Ever After, Beneath the Waves, etc.). These
+are years old and Rank Math's fallback template already covers them, so low priority. Mixed title
+formats + a couple of title bugs (e.g. 5199/5206 read "Interview: Story Spotlight: …") mean a future
+pass should review the dry run before applying.
