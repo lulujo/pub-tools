@@ -93,6 +93,9 @@ def propose(title, anthology, bundle=False):
     if not m:
         return None
     kind, story, author = m.group(1), m.group(2).strip().strip('“”"'), m.group(3).strip()
+    # Guard against a nested prefix from a title bug, e.g. the interview titles
+    # "Interview: Story Spotlight: "X" by Author" (posts 5199/5206) — keep just the story.
+    story = re.sub(r'^(Story Spotlight|Interview):\s*', '', story, flags=re.I).strip().strip('“”"')
     if kind.lower() == "story spotlight":
         desc = _pick(
             f"{author}’s {story}—a story spotlight from {anthology}, from Blackbird Publishing.",

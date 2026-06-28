@@ -82,11 +82,13 @@ by hand). Anthology/bundle tag IDs live in
 [the spotlight skill](../../.claude/skills/post-spotlight/SKILL.md) (e.g. Haunted Waters = 378,
 Escape from 2026 = 393, Write Stuff = 387).
 
-**Done so far:** all **2026** spotlight/interview posts —
-Haunted Waters (tag 378, 27 posts) + Write Stuff (tag 387, 10) + Escape from 2026 (tag 393, 12),
-backfilled 2026-06-28. (One panel post, 5749, hand-written; the dup draft 5480 left for deletion.)
-**Not backfilled (optional):** ~200 pre-2026 spotlight/interview posts across ~20 older anthologies
-(Haunted Places, Haunted, Wild Magic, Realm of Faerie, Ever After, Beneath the Waves, etc.). These
-are years old and Rank Math's fallback template already covers them, so low priority. Mixed title
-formats + a couple of title bugs (e.g. 5199/5206 read "Interview: Story Spotlight: …") mean a future
-pass should review the dry run before applying.
+**Done so far:** all **2025 + 2026** spotlight/interview posts (75) —
+Haunted Waters (tag 378, 27) + Write Stuff (tag 387, 10) + Escape from 2026 (tag 393, 12) +
+Haunted Places (tag 367, 26), backfilled 2026-06-28. (Panel post 5749 hand-written; dup draft 5480
+left for deletion.)
+**Not backfilled (optional):** ~174 **pre-2025** spotlight/interview posts across ~20 older anthologies
+(Haunted, Wild Magic, The Golden Door, Realm of Faerie, Ever After, Beneath the Waves, Faerie Summer,
+Witches' Brew, etc.). Years old and covered by Rank Math's fallback, so low priority. Mixed title
+formats + some untagged posts mean a future pass should review the dry run before applying. The script
+now strips a nested "Story Spotlight:/Interview:" prefix (title bug seen on 5199/5206), but those two
+posts still have the wrong **display title** — fix the titles separately if desired.
