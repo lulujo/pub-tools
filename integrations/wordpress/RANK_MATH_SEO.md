@@ -73,6 +73,8 @@ historical backlog (one anthology at a time), use the committed helper:
 python3 integrations/wordpress/seo_backfill.py --tag <TAG_ID> --anthology "Anthology: Subtitle" [--apply]
 # StoryBundle author interviews ("Author on Title"):
 python3 integrations/wordpress/seo_backfill.py --tag <TAG_ID> --anthology "Bundle Name" --bundle [--apply]
+# A different site (default is blackbird):
+python3 integrations/wordpress/seo_backfill.py --site borogrove --tag <TAG_ID> --anthology "..." [--apply]
 ```
 
 Without `--apply` it prints the proposed focus keyword + description for every post tagged `<TAG_ID>`
@@ -92,3 +94,37 @@ Witches' Brew, etc.). Years old and covered by Rank Math's fallback, so low prio
 formats + some untagged posts mean a future pass should review the dry run before applying. The script
 now strips a nested "Story Spotlight:/Interview:" prefix (title bug seen on 5199/5206), but those two
 posts still have the wrong **display title** — fix the titles separately if desired.
+
+## Porting to another WordPress site (Borogrove, jamieferguson.com, a friend's site)
+
+Everything above was done on Blackbird. The capability is per-site (each site needs its own snippet
+in its own active theme). To repeat it on another site, run this checklist. `seo_backfill.py` already
+knows the three sites (`--site blackbird|borogrove|jamie`); add new ones to its `SITES` map.
+
+1. **Confirm Rank Math is installed + active** on the target site (Plugins screen). If it isn't, this
+   whole approach doesn't apply — there are no `rank_math_*` fields to expose.
+2. **Find the active theme** (Appearance → Themes, or MCP `get_site`). Decide where the snippet lives:
+   - **Active theme is a custom/child theme already** → append the snippet to its `functions.php`.
+   - **Active theme is a third-party theme that updates** (Kadence, Astra, GeneratePress, …) → create a
+     **child theme** for it first, exactly like Blackbird's `kadence-child` (see
+     `…/themes/kadence-child/` for a worked example: `style.css` with `Template: <parent-slug>`, a
+     `functions.php` that enqueues the child style, **and the one-time `after_switch_theme` hook that
+     copies the parent's theme-mods so activation doesn't reset Customizer settings/menus/Additional CSS**).
+     Put the snippet in that child theme. Never edit the parent (wiped on update) or WP core.
+3. **Deploy + activate** the theme change via SFTP/host (theme files are **not** REST-editable). If you
+   created a child theme, back up the parent's settings first if there's no export (the migration hook
+   covers theme-mods, but eyeball widgets after activating).
+4. **Add credentials to `.env`**: `CLAUDE_<SITE>_WP_PASSWORD` (app password for that site's `claude`
+   user, who needs an editor-capable role). Borogrove/jamie vars already exist; see CLAUDE.md.
+5. **Verify the REST round-trip** before trusting it: create a throwaway draft, set the four
+   `rank_math_*` fields, `GET …?context=edit` to confirm they persisted, then delete the draft.
+   (`scratchpad/pub6_test.py` from 2026-06-28 is the template; point it at the new site's base URL.)
+6. **Backfill** with `seo_backfill.py --site <site> --tag <id> --anthology "…"` (tag IDs are **per-site**
+   — look them up on that site, they will not match Blackbird's).
+7. **Wire SEO into that site's posting flow.** The `post-spotlight`/`post-interview`/`post-bundle-interview`
+   skills are Blackbird-specific today; if the new site gets the same kind of content, give it equivalent
+   skill steps (or generalize the skills to take a `--site`).
+
+**Per-site gotchas:** Borogrove forces trailing slashes, so REST must use the `?rest_route=` form —
+`seo_backfill.py` handles this automatically for `--site borogrove` (see its `url()` / `SITES`). Each
+site has its own active theme, so the snippet's home differs site to site.

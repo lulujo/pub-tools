@@ -6,14 +6,34 @@ Skips posts that already have Rank Math data. See integrations/wordpress/RANK_MA
 
 Usage:
   python3 seo_backfill.py --tag 378 --anthology "Haunted Waters: 15 Tales from the Depths"
-  python3 seo_backfill.py --tag 378 --anthology "Haunted Waters: 15 Tales from the Depths" --apply
+  python3 seo_backfill.py --site borogrove --tag 12 --anthology "Some Anthology" --apply
+
+Works against any site in SITES below. Prereq per site: Rank Math installed AND the REST
+snippet (rank-math-rest-snippet.php) live in that site's active theme. See RANK_MATH_SEO.md.
 """
 import argparse, base64, html, json, os, re, sys, time, urllib.request, urllib.error
 
-BASE = "https://blackbirdpublishing.com/wp-json/wp/v2"
-USER = "claude"
+USER = "claude"  # the `claude` Editor/Shop-Manager user exists on all sites
 UA = "pub-tools/seo-backfill (Rookwood)"
 ENV = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
+
+# Per-site config. `rest_route`=True for sites that 301 the pretty REST path to a
+# trailing slash that doesn't route (borogrovepress.com) — use the ?rest_route= form there.
+SITES = {
+    "blackbird": {"root": "https://blackbirdpublishing.com", "env": "CLAUDE_BLACKBIRD_WP_PASSWORD", "rest_route": False},
+    "borogrove": {"root": "https://borogrovepress.com",      "env": "CLAUDE_BOROGROVE_WP_PASSWORD", "rest_route": True},
+    "jamie":     {"root": "https://jamieferguson.com",        "env": "CLAUDE_JAMIE_WP_PASSWORD",     "rest_route": False},
+}
+
+
+def url(site, path):
+    """Build a REST URL for `path` (e.g. "/posts?tags=5&status=publish") honoring the site's quirk."""
+    cfg = SITES[site]
+    if not cfg["rest_route"]:
+        return f"{cfg['root']}/wp-json/wp/v2{path}"
+    route, _, query = path.partition("?")
+    base = f"{cfg['root']}/?rest_route=/wp/v2{route}"
+    return base + ("&" + query if query else "")
 
 # "by" format: anthology spotlights/interviews — Interview/Story Spotlight: "Title" by Author
 TITLE_RE = re.compile(r'^(Interview|Story Spotlight):\s*[“"”]?(.+?)[”"“]?\s+by\s+(.+?)\s*$', re.I)
@@ -21,20 +41,20 @@ TITLE_RE = re.compile(r'^(Interview|Story Spotlight):\s*[“"”]?(.+?)[”"“]
 BUNDLE_RE = re.compile(r'^Interview:\s*(.+?)\s+on\s+(.+?)\s*$', re.I)
 
 
-def load_auth():
+def load_auth(env_var):
     pw = None
     with open(os.path.abspath(ENV)) as f:
         for line in f:
-            if line.startswith("CLAUDE_BLACKBIRD_WP_PASSWORD"):
+            if line.startswith(env_var):
                 pw = line.split("=", 1)[1].strip().strip('"').strip("'").replace(" ", "")
     if not pw:
-        sys.exit("No CLAUDE_BLACKBIRD_WP_PASSWORD in .env")
+        sys.exit(f"No {env_var} in .env")
     return base64.b64encode(f"{USER}:{pw}".encode()).decode()
 
 
-def req(auth, method, path, body=None):
+def req(site, auth, method, path, body=None):
     data = json.dumps(body).encode() if body is not None else None
-    r = urllib.request.Request(BASE + path, data=data, method=method)
+    r = urllib.request.Request(url(site, path), data=data, method=method)
     r.add_header("Authorization", "Basic " + auth)
     r.add_header("User-Agent", UA)
     if data:
@@ -50,12 +70,12 @@ def req(auth, method, path, body=None):
     return None, "exhausted"
 
 
-def fetch_posts(auth, tag):
+def fetch_posts(site, auth, tag):
     posts = {}
     for status in ("publish", "future", "draft", "pending", "private"):
         page = 1
         while True:
-            st, batch = req(auth, "GET", f"/posts?tags={tag}&status={status}&per_page=50&page={page}&context=edit")
+            st, batch = req(site, auth, "GET", f"/posts?tags={tag}&status={status}&per_page=50&page={page}&context=edit")
             if st != 200 or not isinstance(batch, list) or not batch:
                 break
             for p in batch:
@@ -111,14 +131,15 @@ def propose(title, anthology, bundle=False):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--tag", type=int, required=True, help="Anthology tag ID (e.g. 378 = Haunted Waters)")
+    ap.add_argument("--site", choices=sorted(SITES), default="blackbird", help="Target site (default: blackbird)")
+    ap.add_argument("--tag", type=int, required=True, help="Anthology tag ID (e.g. 378 = Haunted Waters on Blackbird)")
     ap.add_argument("--anthology", required=True, help='Anthology/bundle name, e.g. "Haunted Waters: 15 Tales from the Depths" or "Escape from 2026"')
     ap.add_argument("--bundle", action="store_true", help='StoryBundle interviews ("Author on Title" format) — use the bundle description template')
     ap.add_argument("--apply", action="store_true", help="Write changes (default: dry run)")
     args = ap.parse_args()
 
-    auth = load_auth()
-    posts = fetch_posts(auth, args.tag)
+    auth = load_auth(SITES[args.site]["env"])
+    posts = fetch_posts(args.site, auth, args.tag)
     work = []
     for pid, p in sorted(posts.items()):
         meta = p.get("meta", {})
@@ -131,7 +152,7 @@ def main():
             continue
         work.append((pid, p["status"], html.unescape(title), prop))
 
-    print(f"\n{'APPLY' if args.apply else 'DRY RUN'}: {len(work)} post(s) tagged {args.tag} need SEO\n")
+    print(f"\n{'APPLY' if args.apply else 'DRY RUN'} [{args.site}]: {len(work)} post(s) tagged {args.tag} need SEO\n")
     ok = fail = 0
     for pid, status, title, prop in work:
         print(f"[{pid}] {status:>7} | {prop['kind']}")
@@ -141,8 +162,8 @@ def main():
             continue
         meta = {"rank_math_focus_keyword": prop["rank_math_focus_keyword"],
                 "rank_math_description": prop["rank_math_description"]}
-        st, _ = req(auth, "POST", f"/posts/{pid}", {"meta": meta})
-        st2, got = req(auth, "GET", f"/posts/{pid}?context=edit")
+        st, _ = req(args.site, auth, "POST", f"/posts/{pid}", {"meta": meta})
+        st2, got = req(args.site, auth, "GET", f"/posts/{pid}?context=edit")
         gm = got.get("meta", {}) if isinstance(got, dict) else {}
         if st in (200, 201) and gm.get("rank_math_description") == meta["rank_math_description"] \
                 and gm.get("rank_math_focus_keyword") == meta["rank_math_focus_keyword"]:
