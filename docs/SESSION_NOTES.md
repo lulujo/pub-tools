@@ -6,7 +6,7 @@
 
 | Role | Status | Last Active | Notes |
 |------|--------|-------------|-------|
-| Rookwood | Active | 2026-06-28 | PUB-6 (Rank Math SEO) Done &mdash; snippet live in new Kadence child theme; all 2025+2026 spotlight/interview posts backfilled (75: HW 27 + Write Stuff 10 + Escape from 2026 12 + Haunted Places 26); skills now set SEO. ~174 pre-2025 posts left to Rank Math fallback (optional). Open: PUB-9, PUB-10. |
+| Rookwood | Done | 2026-06-28 | (1) PUB-6 (Rank Math SEO) Done &mdash; snippet live in Kadence child theme; 75 2025/2026 posts backfilled; skills now set SEO. (2) **Direct sales**: WooCommerce store stood up &mdash; platform decided (Direct Sales project PUB-12&ndash;26), hosting cleared (PUB-12), 17 titles as draft products, PayPal live-connected, Stripe activated (not connected), policy pages drafted. **Next: BookFunnel (PUB-13) + prices (PUB-19), then test &amp; launch.** Open: PUB-9, PUB-10, PUB-13, PUB-15, PUB-19. |
 
 **Status Icons:** -- Idle | Active | Blocked | Done
 
@@ -16,7 +16,7 @@
 
 Read this file to pick up where the last session left off:
 
-> docs/session-comms/handoff-2026-06-27.md
+> docs/session-comms/handoff-2026-06-28.md
 
 ---
 
