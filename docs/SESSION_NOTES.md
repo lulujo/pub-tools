@@ -6,7 +6,7 @@
 
 | Role | Status | Last Active | Notes |
 |------|--------|-------------|-------|
-| Rookwood | Done | 2026-06-28 | (1) PUB-6 (Rank Math SEO) Done &mdash; snippet live in Kadence child theme; 75 2025/2026 posts backfilled; skills now set SEO. (2) **Direct sales**: WooCommerce store stood up &mdash; platform decided (Direct Sales project PUB-12&ndash;26), hosting cleared (PUB-12), 17 titles as draft products, PayPal live-connected, Stripe activated (not connected), policy pages drafted. **Next: BookFunnel (PUB-13) + prices (PUB-19), then test &amp; launch.** Open: PUB-9, PUB-10, PUB-13, PUB-15, PUB-19; **PUB-27 (replicate store on Borogrove &mdash; note the `?rest_route=` REST quirk)**. |
+| Rookwood | Done | 2026-06-29 | **Direct sales push.** (1) **PUB-19 prices DONE** &mdash; all 17 ebook variations priced (shorts+Bewitchery $0.99, WPC+Entangled $2.99, Bundle Up! $7.99; Amazon blocks bots so $0.99/novel/NF prices = convention + Jamie-confirmed, not scraped). (2) **PUB-13 BookFunnel Woo-side DONE** (In Progress) &mdash; all 17 variations: SKU assigned + `downloadable` OFF; walkthrough in `docs/BOOKFUNNEL_SETUP.md`. Dashboard setup is Jamie's. (3) **Legal pages** filled (support@blackbirdpublishing.com, 30-day). **Launch gate now: Jamie does BookFunnel dashboard &rarr; PUB-20 test &rarr; PUB-21 launch.** Also outstanding: 7 covers, 5 descriptions, Stripe connect, Customizer. **PUB-27 Borogrove: BLOCKED &mdash; Woo not active + `claude` is Editor (needs Shop manager); rights flag &mdash; catalog is all anthologies.** |
 
 **Status Icons:** -- Idle | Active | Blocked | Done
 
@@ -16,7 +16,7 @@
 
 Read this file to pick up where the last session left off:
 
-> docs/session-comms/handoff-2026-06-28.md
+> docs/session-comms/handoff-2026-06-29.md
 
 ---
 
